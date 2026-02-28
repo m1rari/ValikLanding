@@ -82,24 +82,25 @@ export default function Hero() {
           ОСНОВНОЙ КОНТЕНТ
           Располагается поверх фона (z-index: 10)
           ================================================================ */}
-      <div className="container-custom relative z-10 pt-24 pb-16">
+      <div className="container-custom relative z-10 pt-20 pb-28 sm:pt-24 sm:pb-20">
         <div className="max-w-3xl">
 
           {/* ---- Бадж «Выезд мастера в день обращения» ---- */}
           {/* Появляется первым (delay: 0) */}
           <motion.div
             {...fadeInUp(0)}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-medium mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs sm:text-sm font-medium mb-5 sm:mb-6"
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" /> {/* Мигающая точка */}
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
             Выезд мастера в день обращения
           </motion.div>
 
           {/* ---- Главный заголовок H1 ---- */}
-          {/* «электромонтажных» выделено жёлтым градиентом */}
+          {/* На мобильных text-3xl (30px), планшет — text-4xl, десктоп — text-6xl */}
+          {/* Уменьшение шрифта гарантирует, что «электромонтажных» влезает в одну строку */}
           <motion.h1
             {...fadeInUp(0.15)}
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6"
           >
             Комплекс{" "}
             <span className="text-gradient">электромонтажных</span>{" "}
@@ -109,7 +110,7 @@ export default function Hero() {
           {/* ---- Подзаголовок ---- */}
           <motion.p
             {...fadeInUp(0.3)}
-            className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-10 max-w-2xl leading-relaxed"
           >
             Надёжно, по стандартам.{" "}
             <span className="text-white font-medium">Выезд мастера в день обращения.</span>{" "}
@@ -117,18 +118,19 @@ export default function Hero() {
           </motion.p>
 
           {/* ---- CTA-кнопки ---- */}
-          {/* «Вызвать мастера» — основная, с пульсацией; «Рассчитать стоимость» — контурная */}
+          {/* На мобильных кнопки растягиваются на всю ширину, на sm+ — рядом */}
           <motion.div
             {...fadeInUp(0.45)}
-            className="flex flex-wrap gap-4"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4"
           >
             <Button
               variant="primary"
               size="lg"
-              pulse                                   // Включаем пульсирующую анимацию
+              pulse
+              className="w-full sm:w-auto justify-center"
               onClick={() => handleScrollTo("#contacts")}
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg className="w-5 h-5 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
               </svg>
               Вызвать мастера
@@ -136,6 +138,7 @@ export default function Hero() {
             <Button
               variant="outline"
               size="lg"
+              className="w-full sm:w-auto justify-center"
               onClick={() => handleScrollTo("#contacts")}
             >
               Рассчитать стоимость
@@ -143,17 +146,17 @@ export default function Hero() {
           </motion.div>
 
           {/* ---- Метки доверия ---- */}
-          {/* Мелкие подсказки под кнопками: договор, опыт, регион */}
+          {/* На мобильных уменьшены отступы, чтобы не перекрывать «Прокрутите вниз» */}
           <motion.div
             {...fadeInUp(0.6)}
-            className="flex flex-wrap gap-6 mt-12"
+            className="flex flex-wrap gap-4 sm:gap-6 mt-8 sm:mt-12"
           >
             {[
-              { icon: "📋", text: "Официальный договор"         },
-              { icon: "⚡", text: "Работаем с 2015 года"        },
-              { icon: "📍", text: "Пинск и Пинский район"       },
+              { icon: "📋", text: "Официальный договор"   },
+              { icon: "⚡", text: "Работаем с 2015 года"  },
+              { icon: "📍", text: "Пинск и Пинский район" },
             ].map((item) => (
-              <div key={item.text} className="flex items-center gap-2 text-sm text-gray-400">
+              <div key={item.text} className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
                 <span>{item.icon}</span>
                 <span>{item.text}</span>
               </div>
@@ -163,9 +166,9 @@ export default function Hero() {
       </div>
 
       {/* ---- Индикатор прокрутки вниз ---- */}
-      {/* Появляется через 1.5 секунды после загрузки страницы */}
+      {/* Скрыт на мобильных (hidden sm:flex), чтобы не перекрывать метки доверия */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-muted text-xs"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-1 text-muted text-xs"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}

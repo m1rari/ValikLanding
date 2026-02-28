@@ -126,7 +126,7 @@ export default function Header() {
 
             {/* Иконка Telegram — открывает чат */}
             <a
-              href="https://t.me/electromaster_by"
+              href="https://t.me/+375291645388"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 text-sky-400 hover:text-sky-300 transition-all duration-200"
@@ -216,7 +216,7 @@ export default function Header() {
             <a href="viber://chat?number=%2B375291645388" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 font-medium transition-colors">
               Viber
             </a>
-            <a href="https://t.me/electromaster_by" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-medium transition-colors">
+            <a href="https://t.me/+375291645388" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-medium transition-colors">
               Telegram
             </a>
           </div>

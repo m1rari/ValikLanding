@@ -62,9 +62,10 @@ landing/
 3. Напишите вашему новому боту любое сообщение (например, «/start»)
 4. Откройте в браузере:
    ```
-   https://api.telegram.org/bot<ВАШ_ТОКЕН>/getUpdates
+   https://api.telegram.org/bot8641084779:AAGlN8zBa-1LsnZ_8W1C3BrEfw_rDTCGDFI/getUpdates
    ```
 5. В ответе найдите `"chat": { "id": 123456789 }` — это ваш **Chat ID**
+517470121
 
 ### 2. EmailJS (резервный канал — письмо на email)
 
@@ -180,7 +181,7 @@ npm run build
 npm install -g pm2
 
 # 7. Запустите приложение через pm2
-pm2 start npm --name "electromaster" -- start
+pm2 start npm --name "ValikLanding" -- start
 pm2 save           # Сохранить список процессов
 pm2 startup        # Автозапуск при перезагрузке сервера
 
@@ -194,7 +195,7 @@ pm2 startup        # Автозапуск при перезагрузке сер
 sudo apt install nginx
 
 # Создать конфиг для сайта
-sudo nano /etc/nginx/sites-available/electromaster
+sudo nano /etc/nginx/sites-available/ValikLanding
 ```
 
 Вставьте конфигурацию:
@@ -216,7 +217,7 @@ server {
 
 ```bash
 # Активировать конфиг
-sudo ln -s /etc/nginx/sites-available/electromaster /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/ValikLanding /etc/nginx/sites-enabled/
 sudo nginx -t          # Проверить конфиг на ошибки
 sudo systemctl reload nginx
 
@@ -232,10 +233,10 @@ sudo certbot --nginx -d ваш-домен.by -d www.ваш-домен.by
 
 ```bash
 # На VPS — стянуть изменения и пересобрать
-cd /var/www/electromaster
+cd /var/www/ValikLanding
 git pull
 npm run build
-pm2 restart electromaster
+pm2 restart ValikLanding
 ```
 
 ---

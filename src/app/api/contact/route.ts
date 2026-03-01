@@ -12,12 +12,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendTelegram } from "@/utils/sendTelegram";
 import { sendEmail }    from "@/utils/sendEmail";
 
-// Тип тела запроса от фронтенда
 interface ContactBody {
-  name:     string;
-  phone:    string;
-  message?: string;
-  consent:  boolean; // Обязательное согласие на обработку персональных данных
+  name:             string;
+  phone:            string;
+  wallMaterial?:    string;
+  mountingMethod?:  string;
+  connectionPoints?: number;
+  message?:         string;
+  consent:          boolean;
 }
 
 // ---- Регулярное выражение для белорусского номера телефона ----
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
   try {
     // ---- Парсинг тела запроса ----
     const body: ContactBody = await req.json();
-    const { name, phone, message, consent } = body;
+    const { name, phone, wallMaterial, mountingMethod, connectionPoints, message, consent } = body;
 
     // ---- Серверная валидация ----
     // (Дублирует клиентскую валидацию react-hook-form — нельзя обойти через DevTools)
@@ -56,9 +58,12 @@ export async function POST(req: NextRequest) {
 
     // ---- Подготовка данных для отправки ----
     const payload = {
-      name:    name.trim(),
-      phone:   phone.trim(),
-      message: message?.trim(),
+      name:             name.trim(),
+      phone:            phone.trim(),
+      wallMaterial,
+      mountingMethod,
+      connectionPoints,
+      message:          message?.trim(),
     };
 
     // ---- Параллельная отправка в оба канала ----

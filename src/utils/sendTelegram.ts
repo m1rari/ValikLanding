@@ -10,37 +10,37 @@
 //   3. Запишите оба значения в .env.local (не коммитьте их в git!)
 // ============================================================
 
-// Тип данных, которые приходят из формы
 interface TelegramPayload {
-  name: string;     // Имя отправителя
-  phone: string;    // Телефон
-  message?: string; // Описание задачи (необязательно)
+  name:             string;
+  phone:            string;
+  wallMaterial?:    string;
+  mountingMethod?:  string;
+  connectionPoints?: number;
+  message?:         string;
 }
 
 export async function sendTelegram(data: TelegramPayload): Promise<void> {
-  // Читаем секретные ключи из переменных окружения
   const token  = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  // Если ключи не заданы — просто пропускаем отправку (не бросаем ошибку)
   if (!token || !chatId) {
     console.warn("Telegram credentials not configured");
     return;
   }
 
-  // ---- Формируем текст сообщения ----
-  // Markdown-форматирование: *жирный*, обычный текст
   const text = [
-    "📞 *Новая заявка с сайта*",
+    "📋 *Новая заявка с сайта*",
     "",
     `👤 Имя: ${data.name}`,
     `📱 Телефон: ${data.phone}`,
-    data.message ? `💬 Задача: ${data.message}` : null, // Показываем только если заполнено
+    data.wallMaterial    ? `🧱 Материал стен: ${data.wallMaterial}`                              : null,
+    data.mountingMethod  ? `🔧 Способ монтажа: ${data.mountingMethod}`                           : null,
+    data.connectionPoints != null ? `🔌 Точки подключения: ${data.connectionPoints} шт.`         : null,
+    data.message         ? `💬 Комментарий: ${data.message}`                                     : null,
     "",
-    // Время в минском часовом поясе (UTC+3)
     `🕐 Время: ${new Date().toLocaleString("ru-BY", { timeZone: "Europe/Minsk" })}`,
   ]
-    .filter(Boolean) // Убираем null-значения
+    .filter(Boolean)
     .join("\n");
 
   // URL Telegram Bot API для отправки сообщения

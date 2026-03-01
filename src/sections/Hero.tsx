@@ -7,12 +7,10 @@
 
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 
-// ---- Фабрика анимации «появление снизу» ----
-// Принимает delay (секунды) и возвращает объект пропсов для motion-элемента.
-// Используем as const для корректной типизации ease в TypeScript.
 function fadeInUp(delay = 0) {
   return {
     initial: { opacity: 0, y: 40 },
@@ -22,7 +20,8 @@ function fadeInUp(delay = 0) {
 }
 
 export default function Hero() {
-  // Вспомогательная функция: плавный скролл к якорной секции
+  const [showContact, setShowContact] = useState(false);
+
   const handleScrollTo = (href: string) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -128,7 +127,7 @@ export default function Hero() {
               size="lg"
               pulse
               className="w-full sm:w-auto justify-center"
-              onClick={() => handleScrollTo("#contacts")}
+              onClick={() => setShowContact(true)}
             >
               <svg className="w-5 h-5 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
@@ -164,6 +163,85 @@ export default function Hero() {
           </motion.div>
         </div>
       </div>
+
+      {/* ================================================================
+          МОДАЛКА: ПОЗВОНИТЬ МАСТЕРУ
+          ================================================================ */}
+      <AnimatePresence>
+        {showContact && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Затемнение фона */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowContact(false)}
+            />
+
+            {/* Карточка */}
+            <motion.div
+              className="relative bg-dark border border-primary/30 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl"
+              initial={{ opacity: 0, scale: 0.85, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 20 }}
+              transition={{ duration: 0.25 }}
+            >
+              {/* Кнопка закрытия */}
+              <button
+                onClick={() => setShowContact(false)}
+                className="absolute top-4 right-4 text-muted hover:text-white transition-colors"
+                aria-label="Закрыть"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+
+              <div className="text-4xl mb-3">📞</div>
+              <h3 className="text-xl font-bold mb-1">Позвоните нам</h3>
+              <p className="text-muted text-sm mb-6">Работаем в Пинске и Пинском районе</p>
+
+              <div className="flex flex-col gap-3">
+                {/* Телефон */}
+                <a
+                  href="tel:+375291645388"
+                  className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-primary text-dark font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                  </svg>
+                  +375 (29) 164-53-88
+                </a>
+
+                {/* Viber */}
+                <a
+                  href="viber://chat?number=375291645388"
+                  className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-[#7360F2] text-white font-semibold hover:bg-[#7360F2]/90 transition-colors"
+                >
+                  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.8 0 .9 4.6.9 10.4c0 3 1.3 5.8 3.5 7.8V21l3.3-1.8c1.2.3 2.5.5 3.8.5 6.2 0 11.1-4.6 11.1-10.3S18.2 0 12 0zm1.1 14l-2.8-3-1.8 3-3.1-3.2 5.7-6 2.8 3 1.8-3 3.1 3.2L13.1 14z"/>
+                  </svg>
+                  Viber
+                </a>
+
+                {/* Telegram */}
+                <a
+                  href="https://t.me/+375291645388"
+                  className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-[#2AABEE] text-white font-semibold hover:bg-[#2AABEE]/90 transition-colors"
+                >
+                  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.03 9.565c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.13 14.28l-2.963-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.69.306z"/>
+                  </svg>
+                  Telegram
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ---- Индикатор прокрутки вниз ---- */}
       {/* Скрыт на мобильных (hidden sm:flex), чтобы не перекрывать метки доверия */}

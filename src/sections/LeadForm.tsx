@@ -1,13 +1,3 @@
-// ============================================================
-// СЕКЦИЯ: ФОРМА ЗАХВАТА (Lead Form)
-// Основной конверсионный блок сайта.
-// Содержит поля: Имя, Телефон, Описание задачи (опционально),
-// чекбокс согласия на обработку персональных данных.
-// Валидация: react-hook-form + кастомная проверка белорусского телефона.
-// После отправки форма уходит в состояния loading → success / error.
-// Данные отправляются на /api/contact (Telegram + EmailJS).
-// ============================================================
-
 "use client";
 
 import { useState } from "react";
@@ -16,27 +6,47 @@ import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
-// ---- Типизация данных формы ----
+type WallMaterial = "дерево" | "кирпич" | "пеноблок" | "бетон";
+type MountingMethod = "открытый" | "скрытый";
+
 interface FormData {
   name: string;
   phone: string;
-  message?: string;
+  wallMaterial: WallMaterial;
+  mountingMethod: MountingMethod;
+  connectionPoints: number;
   consent: boolean;
 }
 
+const WALL_MATERIALS: { value: WallMaterial; label: string; icon: string }[] = [
+  { value: "дерево",   label: "Дерево",   icon: "🪵" },
+  { value: "кирпич",  label: "Кирпич",   icon: "🧱" },
+  { value: "пеноблок", label: "Пеноблок", icon: "⬜" },
+  { value: "бетон",   label: "Бетон",    icon: "🏗️" },
+];
+
+const MOUNTING_METHODS: { value: MountingMethod; label: string; desc: string }[] = [
+  { value: "открытый", label: "Открытый", desc: "кабель в кабель-канале" },
+  { value: "скрытый",  label: "Скрытый",  desc: "кабель в стене" },
+];
+
 export default function LeadForm() {
-  // Состояние отправки: idle | loading | success | error
   const [submitStatus, setSubmitStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  // ---- React Hook Form ----
   const {
-    register,      // Регистрирует поле и подключает валидацию
-    handleSubmit,  // Обёртка над onSubmit: сначала валидирует, потом вызывает коллбэк
-    formState: { errors },  // Объект с ошибками валидации
-    reset,         // Сбрасывает форму в исходное состояние
-  } = useForm<FormData>();
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+    setValue,
+  } = useForm<FormData>({
+    defaultValues: { connectionPoints: 1 },
+  });
 
-  // ---- Обработчик отправки ----
+  const selectedMaterial = watch("wallMaterial");
+  const selectedMethod   = watch("mountingMethod");
+
   const onSubmit = async (data: FormData) => {
     setSubmitStatus("loading");
     try {
@@ -47,7 +57,7 @@ export default function LeadForm() {
       });
       if (!response.ok) throw new Error("Ошибка отправки");
       setSubmitStatus("success");
-      reset();  // Очищаем поля после успешной отправки
+      reset();
     } catch {
       setSubmitStatus("error");
     }
@@ -58,7 +68,6 @@ export default function LeadForm() {
       <div className="container-custom">
         <div className="max-w-2xl mx-auto">
 
-          {/* ---- Заголовок и подзаголовок ---- */}
           <motion.div
             className="text-center mb-10"
             initial={{ opacity: 0, y: 30 }}
@@ -67,20 +76,16 @@ export default function LeadForm() {
             transition={{ duration: 0.6 }}
           >
             <span className="text-primary text-sm font-semibold uppercase tracking-widest">
-              Бесплатная консультация
+              Бесплатный расчёт
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold mt-3">
-              Оставьте заявку
+              Оставить заявку
             </h2>
             <p className="text-muted mt-4">
-                  Работаем в Пинске и Пинском районе. Перезвоним в течение 15 минут.
+              Ответьте на несколько вопросов — перезвоним с точной ценой в течение 15 минут.
             </p>
           </motion.div>
 
-          {/* ================================================================
-              КАРТОЧКА ФОРМЫ
-              Тёмный фон + жёлтая рамка + скруглённые углы
-              ================================================================ */}
           <motion.div
             className="bg-dark rounded-2xl p-8 border border-primary/20"
             initial={{ opacity: 0, y: 30 }}
@@ -89,10 +94,6 @@ export default function LeadForm() {
             transition={{ duration: 0.6, delay: 0.1 }}
           >
 
-            {/* ==============================================================
-                СОСТОЯНИЕ: УСПЕШНАЯ ОТПРАВКА
-                Отображается вместо формы после успешного submit
-                ============================================================== */}
             {submitStatus === "success" ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -102,40 +103,143 @@ export default function LeadForm() {
                 <div className="text-5xl mb-4">✅</div>
                 <h3 className="text-xl font-bold mb-2">Заявка отправлена!</h3>
                 <p className="text-muted mb-6">Перезвоним в течение 15 минут</p>
-                <Button
-                  variant="outline"
-                  onClick={() => setSubmitStatus("idle")}
-                >
+                <Button variant="outline" onClick={() => setSubmitStatus("idle")}>
                   Отправить ещё одну заявку
                 </Button>
               </motion.div>
 
             ) : (
-              /* ==============================================================
-                 ФОРМА
-                 Три поля + чекбокс + кнопка отправки
-                 ============================================================== */
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
 
-                {/* ---- Поле: Имя ---- */}
+                {/* ---- Шаг 1: Материал стен ---- */}
                 <div>
+                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                    1. Материал стен
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {WALL_MATERIALS.map(({ value, label, icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setValue("wallMaterial", value, { shouldValidate: true })}
+                        className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border text-sm font-medium transition-all ${
+                          selectedMaterial === value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-white/10 bg-surface text-muted hover:border-white/30 hover:text-white"
+                        }`}
+                      >
+                        <span className="text-xl">{icon}</span>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Скрытый input для валидации */}
+                  <input
+                    type="hidden"
+                    {...register("wallMaterial", { required: "Выберите материал стен" })}
+                  />
+                  {errors.wallMaterial && (
+                    <p className="text-red-400 text-sm mt-2">{errors.wallMaterial.message}</p>
+                  )}
+                </div>
+
+                {/* ---- Шаг 2: Способ монтажа ---- */}
+                <div>
+                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                    2. Способ монтажа
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {MOUNTING_METHODS.map(({ value, label, desc }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setValue("mountingMethod", value, { shouldValidate: true })}
+                        className={`flex flex-col items-start gap-0.5 py-3 px-4 rounded-xl border text-sm transition-all ${
+                          selectedMethod === value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-white/10 bg-surface text-muted hover:border-white/30 hover:text-white"
+                        }`}
+                      >
+                        <span className="font-semibold">{label}</span>
+                        <span className={`text-xs ${selectedMethod === value ? "text-primary/70" : "text-muted/70"}`}>
+                          {desc}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="hidden"
+                    {...register("mountingMethod", { required: "Выберите способ монтажа" })}
+                  />
+                  {errors.mountingMethod && (
+                    <p className="text-red-400 text-sm mt-2">{errors.mountingMethod.message}</p>
+                  )}
+                </div>
+
+                {/* ---- Шаг 3: Количество точек подключения ---- */}
+                <div>
+                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                    3. Точки подключения
+                  </p>
+                  <p className="text-xs text-muted mb-3">Сколько розеток и выключателей нужно установить?</p>
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = Number(watch("connectionPoints")) || 1;
+                        if (v > 1) setValue("connectionPoints", v - 1);
+                      }}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-surface text-white text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      max={999}
+                      {...register("connectionPoints", {
+                        required: "Укажите количество",
+                        min: { value: 1, message: "Минимум 1" },
+                        max: { value: 999, message: "Не более 999" },
+                        valueAsNumber: true,
+                      })}
+                      className="w-24 text-center px-4 py-3 bg-surface rounded-xl border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = Number(watch("connectionPoints")) || 0;
+                        if (v < 999) setValue("connectionPoints", v + 1);
+                      }}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-surface text-white text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                    >
+                      +
+                    </button>
+                    <span className="text-muted text-sm">шт.</span>
+                  </div>
+                  {errors.connectionPoints && (
+                    <p className="text-red-400 text-sm mt-2">{errors.connectionPoints.message}</p>
+                  )}
+                </div>
+
+                {/* ---- Контактные данные ---- */}
+                <div className="pt-2 border-t border-white/5 space-y-4">
+                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                    Ваши контакты
+                  </p>
+
                   <Input
                     placeholder="Ваше имя"
                     {...register("name", { required: "Введите ваше имя" })}
                     error={errors.name?.message}
                   />
-                </div>
 
-                {/* ---- Поле: Телефон ---- */}
-                {/* Кастомная валидация: белорусский формат +375 XX XXX-XX-XX */}
-                <div>
                   <Input
                     placeholder="+375 XX XXX-XX-XX"
                     type="tel"
                     {...register("phone", {
                       required: "Введите номер телефона",
                       validate: (value) => {
-                        // Удаляем все нецифровые символы и проверяем длину
                         const digits = value.replace(/\D/g, "");
                         return (
                           (digits.length === 12 && digits.startsWith("375")) ||
@@ -147,18 +251,7 @@ export default function LeadForm() {
                   />
                 </div>
 
-                {/* ---- Поле: Описание задачи (необязательное) ---- */}
-                <div>
-                  <textarea
-                    placeholder="Кратко опишите задачу (необязательно)"
-                    rows={3}
-                    {...register("message")}
-                    className="w-full px-4 py-3 bg-surface rounded-xl border border-white/10 text-white placeholder:text-muted focus:outline-none focus:border-primary/50 transition-colors resize-none"
-                  />
-                </div>
-
-                {/* ---- Чекбокс согласия на обработку персональных данных ---- */}
-                {/* Обязательное поле согласно законодательству РБ */}
+                {/* ---- Согласие ---- */}
                 <div>
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
@@ -176,13 +269,12 @@ export default function LeadForm() {
                       </a>
                     </span>
                   </label>
-                  {/* Сообщение об ошибке чекбокса */}
                   {errors.consent && (
                     <p className="text-red-400 text-sm mt-1">{errors.consent.message}</p>
                   )}
                 </div>
 
-                {/* ---- Кнопка отправки / индикатор загрузки ---- */}
+                {/* ---- Кнопка отправки ---- */}
                 <Button
                   variant="primary"
                   size="lg"
@@ -191,7 +283,6 @@ export default function LeadForm() {
                   disabled={submitStatus === "loading"}
                 >
                   {submitStatus === "loading" ? (
-                    // Индикатор загрузки во время отправки
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -204,7 +295,6 @@ export default function LeadForm() {
                   )}
                 </Button>
 
-                {/* ---- Сообщение об ошибке отправки ---- */}
                 {submitStatus === "error" && (
                   <p className="text-red-400 text-sm text-center">
                     Ошибка отправки. Позвоните нам:{" "}
@@ -219,7 +309,6 @@ export default function LeadForm() {
           </motion.div>
 
           {/* ---- Альтернативные способы связи ---- */}
-          {/* Под формой — телефон, Viber и Telegram */}
           <motion.div
             className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-muted"
             initial={{ opacity: 0 }}

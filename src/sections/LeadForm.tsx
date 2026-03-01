@@ -1,10 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { motion } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+
+// Форматирует строку в маску +375 (XX) XXX-XX-XX по мере ввода.
+// Принимает любой ввод, извлекает только цифры, нормализует 375-префикс.
+function formatPhone(raw: string): string {
+  let digits = raw.replace(/\D/g, "");
+
+  // Нормализуем: убираем лишние 375 в начале, если пользователь вставил готовый номер
+  if (digits.length > 3 && digits.startsWith("375375")) {
+    digits = digits.slice(3);
+  }
+  // Всегда начинаем с 375
+  if (!digits.startsWith("375")) {
+    digits = "375" + digits.replace(/^375/, "");
+  }
+  // Ограничиваем 12 цифрами: 375 + 9 (оператор + номер)
+  digits = digits.slice(0, 12);
+
+  const local = digits.slice(3); // цифры после 375
+
+  if (local.length === 0) return "+375 (";
+  if (local.length <= 2)  return `+375 (${local}`;
+  if (local.length <= 5)  return `+375 (${local.slice(0, 2)}) ${local.slice(2)}`;
+  if (local.length <= 7)  return `+375 (${local.slice(0, 2)}) ${local.slice(2, 5)}-${local.slice(5)}`;
+  return `+375 (${local.slice(0, 2)}) ${local.slice(2, 5)}-${local.slice(5, 7)}-${local.slice(7, 9)}`;
+}
 
 type WallMaterial = "дерево" | "кирпич" | "пеноблок" | "бетон";
 type MountingMethod = "открытый" | "скрытый";
@@ -40,6 +65,7 @@ export default function LeadForm() {
     reset,
     watch,
     setValue,
+    control,
   } = useForm<FormData>({
     defaultValues: { connectionPoints: 1 },
   });
@@ -113,7 +139,7 @@ export default function LeadForm() {
 
                 {/* ---- Шаг 1: Материал стен ---- */}
                 <div>
-                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                  <p className="text-sm font-semibold text-foreground/70 uppercase tracking-wider mb-3">
                     1. Материал стен
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -125,7 +151,7 @@ export default function LeadForm() {
                         className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border text-sm font-medium transition-all ${
                           selectedMaterial === value
                             ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 bg-surface text-muted hover:border-white/30 hover:text-white"
+                            : "border-foreground/10 bg-surface text-muted hover:border-foreground/30 hover:text-foreground"
                         }`}
                       >
                         <span className="text-xl">{icon}</span>
@@ -145,7 +171,7 @@ export default function LeadForm() {
 
                 {/* ---- Шаг 2: Способ монтажа ---- */}
                 <div>
-                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                  <p className="text-sm font-semibold text-foreground/70 uppercase tracking-wider mb-3">
                     2. Способ монтажа
                   </p>
                   <div className="grid grid-cols-2 gap-3">
@@ -157,7 +183,7 @@ export default function LeadForm() {
                         className={`flex flex-col items-start gap-0.5 py-3 px-4 rounded-xl border text-sm transition-all ${
                           selectedMethod === value
                             ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 bg-surface text-muted hover:border-white/30 hover:text-white"
+                            : "border-foreground/10 bg-surface text-muted hover:border-foreground/30 hover:text-foreground"
                         }`}
                       >
                         <span className="font-semibold">{label}</span>
@@ -178,7 +204,7 @@ export default function LeadForm() {
 
                 {/* ---- Шаг 3: Количество точек подключения ---- */}
                 <div>
-                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">
+                  <p className="text-sm font-semibold text-foreground/70 uppercase tracking-wider mb-3">
                     3. Точки подключения
                   </p>
                   <p className="text-xs text-muted mb-3">Сколько розеток и выключателей нужно установить?</p>
@@ -189,7 +215,7 @@ export default function LeadForm() {
                         const v = Number(watch("connectionPoints")) || 1;
                         if (v > 1) setValue("connectionPoints", v - 1);
                       }}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-surface text-white text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors"
                     >
                       −
                     </button>
@@ -203,7 +229,7 @@ export default function LeadForm() {
                         max: { value: 999, message: "Не более 999" },
                         valueAsNumber: true,
                       })}
-                      className="w-24 text-center px-4 py-3 bg-surface rounded-xl border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      className="w-24 text-center px-4 py-3 bg-surface rounded-xl border border-foreground/10 text-foreground focus:outline-none focus:border-primary/50 transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     />
                     <button
                       type="button"
@@ -211,7 +237,7 @@ export default function LeadForm() {
                         const v = Number(watch("connectionPoints")) || 0;
                         if (v < 999) setValue("connectionPoints", v + 1);
                       }}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-white/10 bg-surface text-white text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors"
                     >
                       +
                     </button>
@@ -223,8 +249,8 @@ export default function LeadForm() {
                 </div>
 
                 {/* ---- Контактные данные ---- */}
-                <div className="pt-2 border-t border-white/5 space-y-4">
-                  <p className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                <div className="pt-2 border-t border-foreground/5 space-y-4">
+                  <p className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                     Ваши контакты
                   </p>
 
@@ -234,20 +260,36 @@ export default function LeadForm() {
                     error={errors.name?.message}
                   />
 
-                  <Input
-                    placeholder="+375 XX XXX-XX-XX"
-                    type="tel"
-                    {...register("phone", {
+                  <Controller
+                    name="phone"
+                    control={control}
+                    rules={{
                       required: "Введите номер телефона",
                       validate: (value) => {
-                        const digits = value.replace(/\D/g, "");
+                        const digits = (value ?? "").replace(/\D/g, "");
                         return (
                           (digits.length === 12 && digits.startsWith("375")) ||
-                          "Введите корректный номер (+375 XX XXX-XX-XX)"
+                          "Введите полный номер: +375 (XX) XXX-XX-XX"
                         );
                       },
-                    })}
-                    error={errors.phone?.message}
+                    }}
+                    render={({ field: { onChange, value, ref } }) => (
+                      <Input
+                        ref={ref}
+                        type="tel"
+                        inputMode="numeric"
+                        placeholder="+375 (XX) XXX-XX-XX"
+                        value={value ?? ""}
+                        onFocus={(e) => {
+                          if (!e.target.value) onChange("+375 (");
+                        }}
+                        onChange={(e) => {
+                          const formatted = formatPhone(e.target.value);
+                          onChange(formatted);
+                        }}
+                        error={errors.phone?.message}
+                      />
+                    )}
                   />
                 </div>
 

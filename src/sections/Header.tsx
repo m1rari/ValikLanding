@@ -11,53 +11,41 @@
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import Button from "@/components/ui/Button";
+import ThemeToggle from "@/components/ThemeToggle";
 
-// ---- Ссылки навигационного меню ----
-// href — якорный ID секции на странице (например #services → <section id="services">)
 const navLinks = [
   { label: "Услуги",         href: "#services"  },
   { label: "Форматы работы", href: "#formats"   },
+  { label: "Примеры работ",  href: "#works"     },
   { label: "Этапы",          href: "#timeline"  },
   { label: "Контакты",       href: "#contacts"  },
 ];
 
 export default function Header() {
-  // hidden: true — шапка скрыта (уехала вверх)
-  const [hidden, setHidden] = useState(false);
-  // scrolled: true — страница прокручена, показываем фон шапки
+  const [hidden, setHidden]   = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // menuOpen — открыто ли мобильное меню
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // useScroll отслеживает текущую позицию прокрутки
   const { scrollY } = useScroll();
 
-  // Реагируем на каждое изменение позиции скролла
   useMotionValueEvent(scrollY, "change", (latest) => {
     const prev = scrollY.getPrevious() ?? 0;
-    // Если скролл идёт вниз И мы уже прокрутили больше 80px — прячем шапку
     setHidden(latest > prev && latest > 80);
-    // Фон шапки появляется после 20px прокрутки
     setScrolled(latest > 20);
   });
 
-  // Плавный скролл к нужной секции по клику на навигационную ссылку
   const handleNavClick = (href: string) => {
-    setMenuOpen(false); // Закрываем мобильное меню если открыто
+    setMenuOpen(false);
     const el = document.querySelector(href);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    // motion.header — анимированная шапка
-    // При hidden=true: сдвигается на -100% вверх (уезжает за край экрана)
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-dark/90 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/30"
-          : "bg-transparent" // Прозрачный на самом верху страницы
+          ? "bg-dark/90 backdrop-blur-md border-b border-foreground/10 shadow-lg shadow-black/10"
+          : "bg-transparent"
       }`}
       variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
       animate={hidden ? "hidden" : "visible"}
@@ -72,40 +60,37 @@ export default function Header() {
             className="flex items-center gap-2 group"
             onClick={(e) => {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" }); // Прокрутка наверх
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            {/* Жёлтый квадрат с иконкой молнии */}
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
-              <svg className="w-5 h-5 text-dark" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-5 h-5 text-onPrimary" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
             </div>
-            {/* Название: «Электро» белым + «Мастер» жёлтым */}
             <span className="font-bold text-lg tracking-tight">
               Электро<span className="text-primary">Мастер</span>
             </span>
           </a>
 
-          {/* ---- Навигация (только на десктопе, скрыта на мобиле) ---- */}
+          {/* ---- Навигация (десктоп) ---- */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="text-sm font-medium text-gray-300 hover:text-primary transition-colors duration-200"
+                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200"
               >
                 {link.label}
               </button>
             ))}
           </nav>
 
-          {/* ---- Правый блок: телефон + мессенджеры + кнопка ---- */}
+          {/* ---- Правый блок: телефон + мессенджеры + тема + кнопка ---- */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* Кликабельный номер телефона */}
             <a
               href="tel:+375291645388"
-              className="text-sm font-semibold text-white hover:text-primary transition-colors duration-200 flex items-center gap-1"
+              className="text-sm font-semibold text-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
@@ -113,10 +98,9 @@ export default function Header() {
               +375 (29) 164-53-88
             </a>
 
-            {/* Иконка Viber — открывает чат напрямую */}
             <a
               href="viber://chat?number=%2B375291645388"
-              className="p-2 rounded-lg bg-purple-700/20 hover:bg-purple-700/40 text-purple-400 hover:text-purple-300 transition-all duration-200"
+              className="p-2 rounded-lg bg-purple-700/20 hover:bg-purple-700/40 text-purple-500 hover:text-purple-400 transition-all duration-200"
               title="Viber"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -124,12 +108,11 @@ export default function Header() {
               </svg>
             </a>
 
-            {/* Иконка Telegram — открывает чат */}
             <a
               href="https://t.me/+375291645388"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 text-sky-400 hover:text-sky-300 transition-all duration-200"
+              className="p-2 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 text-sky-500 hover:text-sky-400 transition-all duration-200"
               title="Telegram"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -137,86 +120,80 @@ export default function Header() {
               </svg>
             </a>
 
-            {/* Кнопка «Вызвать мастера» — скролл к форме */}
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => handleNavClick("#contacts")}
-            >
+            {/* Переключатель темы */}
+            <ThemeToggle />
+
+            <Button variant="primary" size="sm" onClick={() => handleNavClick("#contacts")}>
               Вызвать мастера
             </Button>
           </div>
 
-          {/* ---- Бургер-кнопка (только на мобиле) ---- */}
-          {/* Три полоски анимируются в крестик при открытии меню */}
-          <button
-            className="lg:hidden p-2 text-white hover:text-primary transition-colors"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Меню"
-          >
-            <motion.div
-              animate={menuOpen ? "open" : "closed"}
-              className="flex flex-col gap-1.5 w-6"
+          {/* ---- Бургер + тема (мобиль) ---- */}
+          <div className="lg:hidden flex items-center gap-2">
+            <ThemeToggle />
+
+            <button
+              className="p-2 text-foreground hover:text-primary transition-colors"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Меню"
             >
-              {/* Верхняя полоска — поворачивается на 45° */}
-              <motion.span
-                className="block h-0.5 bg-current rounded-full"
-                variants={{ open: { rotate: 45, y: 8 }, closed: { rotate: 0, y: 0 } }}
-                transition={{ duration: 0.3 }}
-              />
-              {/* Средняя полоска — исчезает */}
-              <motion.span
-                className="block h-0.5 bg-current rounded-full"
-                variants={{ open: { opacity: 0 }, closed: { opacity: 1 } }}
-                transition={{ duration: 0.3 }}
-              />
-              {/* Нижняя полоска — поворачивается на -45° */}
-              <motion.span
-                className="block h-0.5 bg-current rounded-full"
-                variants={{ open: { rotate: -45, y: -8 }, closed: { rotate: 0, y: 0 } }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
-          </button>
+              <motion.div
+                animate={menuOpen ? "open" : "closed"}
+                className="flex flex-col gap-1.5 w-6"
+              >
+                <motion.span
+                  className="block h-0.5 bg-current rounded-full"
+                  variants={{ open: { rotate: 45, y: 8 }, closed: { rotate: 0, y: 0 } }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.span
+                  className="block h-0.5 bg-current rounded-full"
+                  variants={{ open: { opacity: 0 }, closed: { opacity: 1 } }}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.span
+                  className="block h-0.5 bg-current rounded-full"
+                  variants={{ open: { rotate: -45, y: -8 }, closed: { rotate: 0, y: 0 } }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.div>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ---- Мобильное выпадающее меню ---- */}
-      {/* Анимируется по высоте: 0 → auto при открытии, обратно при закрытии */}
+      {/* ---- Мобильное меню ---- */}
       <motion.div
-        className="lg:hidden bg-surface/95 backdrop-blur-md border-t border-white/10 overflow-hidden"
+        className="lg:hidden bg-surface/95 backdrop-blur-md border-t border-foreground/10 overflow-hidden"
         initial={false}
         animate={{ height: menuOpen ? "auto" : 0 }}
         transition={{ duration: 0.3 }}
       >
         <div className="container-custom py-4 flex flex-col gap-3">
-          {/* Навигационные ссылки */}
           {navLinks.map((link) => (
             <button
               key={link.href}
               onClick={() => handleNavClick(link.href)}
-              className="text-left py-2 text-gray-300 hover:text-primary font-medium transition-colors"
+              className="text-left py-2 text-foreground/70 hover:text-primary font-medium transition-colors"
             >
               {link.label}
             </button>
           ))}
-          <hr className="border-white/10" />
-          {/* Телефон */}
+          <hr className="border-foreground/10" />
           <a
             href="tel:+375291645388"
-            className="flex items-center gap-2 text-white font-semibold hover:text-primary transition-colors"
+            className="flex items-center gap-2 text-foreground font-semibold hover:text-primary transition-colors"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
             </svg>
             +375 (29) 164-53-88
           </a>
-          {/* Мессенджеры */}
           <div className="flex gap-3">
-            <a href="viber://chat?number=%2B375291645388" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 font-medium transition-colors">
+            <a href="viber://chat?number=%2B375291645388" className="flex items-center gap-2 text-purple-500 hover:text-purple-400 font-medium transition-colors">
               Viber
             </a>
-            <a href="https://t.me/+375291645388" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sky-400 hover:text-sky-300 font-medium transition-colors">
+            <a href="https://t.me/+375291645388" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sky-500 hover:text-sky-400 font-medium transition-colors">
               Telegram
             </a>
           </div>

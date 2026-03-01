@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" fill="#1A1F2E"/>
+  <rect x="2" y="2" width="796" height="596" fill="none" stroke="#F5A623" stroke-width="2" stroke-dasharray="12,6" opacity="0.3"/>
+  <circle cx="400" cy="260" r="60" fill="none" stroke="#F5A623" stroke-width="2" opacity="0.4"/>
+  <path d="M370 260 L400 230 L430 260 L430 290 L370 290 Z" fill="none" stroke="#F5A623" stroke-width="2" opacity="0.4"/>
+  <circle cx="385" cy="252" r="8" fill="#F5A623" opacity="0.4"/>
+  <path d="M340 320 L380 270 L420 300 L450 280 L460 320 Z" fill="#F5A623" opacity="0.15"/>
+  <text x="400" y="370" font-family="Arial, sans-serif" font-size="18" fill="#F5A623" text-anchor="middle" opacity="0.6">$>B> A:>@> ?>O28BAO</text>
+  <text x="400" y="398" font-family="Arial, sans-serif" font-size="13" fill="#6B7280" text-anchor="middle">>102LB5 87>1@065=85 2 /public/works/</text>
+  <!-- lightning bolt -->
+  <path d="M408 180 L396 208 L404 208 L392 236 L404 218 L396 218 Z" fill="#F5A623" opacity="0.5"/>
+</svg>

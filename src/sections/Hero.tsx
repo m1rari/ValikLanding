@@ -71,7 +71,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs sm:text-sm font-medium mb-5 sm:mb-6"
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
-            Выезд мастера в день обращения
+            Консультация мастера в день обращения
           </motion.div>
 
           {/* H1 */}

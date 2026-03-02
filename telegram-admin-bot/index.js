@@ -203,22 +203,21 @@ bot.on("callback_query", async (query) => {
       }
 
       if (!hadError) {
-        // Получаем информацию о последнем коммите
+        // Получаем информацию о последнем коммите (без Markdown, чтобы не ломать разметку)
         const lastCommit = await runCommand(`cd "${APP_DIR}" && git log -1 --oneline`, {
           timeout: 15000,
         });
 
-        if (lastCommit.ok) {
-          await send(
-            "✅ Обновление приложения завершено *успешно*.\n\n" +
-              "📌 *Последний коммит:*\n`" +
-              codeBlock(lastCommit.out) +
-              "`"
-          );
-        } else {
-          // Если по какой-то причине git log не сработал — просто успешное сообщение
-          await send("✅ Обновление приложения завершено *успешно*.");
+        let text = "✅ Обновление приложения завершено успешно.";
+
+        if (lastCommit.ok && lastCommit.out) {
+          const firstLine = String(lastCommit.out).split("\n")[0];
+          const shortLine = firstLine.length > 300 ? firstLine.slice(0, 300) + "…" : firstLine;
+          text += "\n\nПоследний коммит:\n" + shortLine;
         }
+
+        // Отправляем без parse_mode, чтобы Telegram точно принял сообщение
+        await bot.sendMessage(chatId, text);
       } else {
         // Сначала короткое сообщение о неудаче (чтобы точно дошло)
         await send("❌ Обновление завершилось с ошибкой.");

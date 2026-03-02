@@ -67,7 +67,7 @@ async function runCommand(cmd, options = {}) {
   }
 }
 
-// ——— Клавиатура с кнопками ———
+// ——— Inline-кнопки (привязаны к сообщению) ———
 function getMainKeyboard() {
   return {
     reply_markup: {
@@ -86,18 +86,46 @@ function getMainKeyboard() {
   };
 }
 
+// ——— Постоянная кнопка внизу чата (Reply Keyboard) ———
+const MENU_BUTTON = "⚙️ Управление сервером";
+
+function getReplyKeyboard() {
+  return {
+    reply_markup: {
+      keyboard: [[MENU_BUTTON]],
+      resize_keyboard: true,
+      one_time_keyboard: false,
+    },
+  };
+}
+
+function sendMenu(chatId) {
+  return bot.sendMessage(
+    chatId,
+    "⚙️ *Управление сервером*\n\nВыберите действие:",
+    { parse_mode: "Markdown", ...getMainKeyboard() }
+  );
+}
+
 // ——— Обработка только от админа ———
 bot.on("message", (msg) => {
   const chatId = msg.chat.id;
   if (!isAdmin(chatId)) return;
 
-  const text = (msg.text || "").trim().toLowerCase();
-  if (text === "/start" || text === "/menu" || text === "меню") {
+  const text = (msg.text || "").trim();
+  const textLower = text.toLowerCase();
+
+  if (text === "/start") {
     bot.sendMessage(
       chatId,
-      "⚙️ *Управление сервером*\n\nВыберите действие:",
-      { parse_mode: "Markdown", ...getMainKeyboard() }
+      "Добро пожаловать. Нажмите кнопку внизу, чтобы открыть меню управления.",
+      getReplyKeyboard()
     );
+    return sendMenu(chatId);
+  }
+
+  if (text === "/menu" || textLower === "меню" || text === MENU_BUTTON) {
+    return sendMenu(chatId);
   }
 });
 

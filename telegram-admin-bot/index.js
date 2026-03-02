@@ -5,11 +5,16 @@
  * Кнопки: Статус сервера, Статус приложения, Перезапуск приложения, Обновить приложение, Перезапуск сервера.
  */
 
-require("dotenv").config();
+const path = require("path");
+const dotenv = require("dotenv");
+// Сначала из корня проекта (там может быть .env.local с TELEGRAM_*)
+dotenv.config({ path: path.join(__dirname, "../.env.local") });
+// Затем своя папка — переопределение и переменные бота (APP_DIR, PM2_APP_NAME и т.д.)
+dotenv.config({ path: path.join(__dirname, ".env") });
+
 const TelegramBot = require("node-telegram-bot-api");
 const { exec } = require("child_process");
 const { promisify } = require("util");
-const path = require("path");
 
 const execAsync = promisify(exec);
 
@@ -20,7 +25,7 @@ const PM2_APP_NAME = process.env.PM2_APP_NAME || "all";
 const BUILD_SCRIPT = process.env.BUILD_SCRIPT || "build";
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
-  console.error("Set TELEGRAM_BOT_TOKEN and TELEGRAM_ADMIN_CHAT_ID (or TELEGRAM_CHAT_ID) in .env");
+  console.error("Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local (корень проекта) или в telegram-admin-bot/.env");
   process.exit(1);
 }
 

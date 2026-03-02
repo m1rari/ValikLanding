@@ -39,26 +39,23 @@ cd /var/www/ValikLanding/telegram-admin-bot
 # Зависимости
 npm install
 
-# Конфиг (можно скопировать из основного .env сайта — тот же токен и chat id)
-cp .env.example .env
-nano .env
 ```
 
-Заполните `.env`:
+Если в корне проекта уже есть **.env.local** с `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`, их **дублировать не нужно** — бот читает этот файл автоматически.
+
+Создайте **.env** в папке `telegram-admin-bot/` только если нужно задать переменные бота (иначе возьмутся значения по умолчанию):
 
 ```env
-TELEGRAM_BOT_TOKEN=ваш_токен_от_BotFather
-TELEGRAM_ADMIN_CHAT_ID=ваш_chat_id
+# Опционально: путь к проекту и имя в PM2 (если не заданы — см. значения по умолчанию ниже)
 APP_DIR=/var/www/ValikLanding
 PM2_APP_NAME=ValikLanding
 BUILD_SCRIPT=build
 ```
 
-- **TELEGRAM_BOT_TOKEN** — можно использовать тот же, что и для заявок с сайта.
-- **TELEGRAM_ADMIN_CHAT_ID** — ваш личный Chat ID (как в основном проекте; только этот чат сможет нажимать кнопки).
-- **APP_DIR** — полный путь к корню Next.js проекта (где `package.json` и `git`).
-- **PM2_APP_NAME** — имя в `pm2 list` (например `ValikLanding` или `all`).
-- **BUILD_SCRIPT** — скрипт сборки: `build` или, если есть, `build:dev`.
+- **TELEGRAM_BOT_TOKEN** и **TELEGRAM_CHAT_ID** — берутся из `../.env.local` (тот же файл, что и для сайта).
+- **APP_DIR** — по умолчанию `/var/www/ValikLanding`.
+- **PM2_APP_NAME** — по умолчанию `all`; укажите имя приложения из `pm2 list` (например `ValikLanding`).
+- **BUILD_SCRIPT** — по умолчанию `build`; при необходимости можно задать `build:dev`.
 
 ### 3. Запуск через PM2
 

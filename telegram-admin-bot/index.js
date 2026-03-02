@@ -220,7 +220,14 @@ bot.on("callback_query", async (query) => {
           await send("✅ Обновление приложения завершено *успешно*.");
         }
       } else {
-        await send("❌ Обновление завершилось с ошибкой.\n\n📋 *Лог команд:*\n\n" + results.join("\n\n"));
+        // Сначала короткое сообщение о неудаче (чтобы точно дошло)
+        await send("❌ Обновление завершилось с ошибкой.");
+
+        // Формируем и ограничиваем лог по длине, чтобы Telegram не отбрасывал сообщение
+        const fullLog = results.join("\n\n");
+        const trimmedLog = fullLog.length > 3400 ? fullLog.slice(0, 3400) + "… (обрезано)" : fullLog;
+
+        await send("📋 *Лог команд:*\n\n`" + codeBlock(trimmedLog) + "`");
       }
       return;
     }

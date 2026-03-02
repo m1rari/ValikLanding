@@ -60,11 +60,6 @@ export default function Footer() {
 
               <div className="flex items-center gap-2">
                 <span>📍</span>
-                <span>д. Берёзовичи, ул. Садовая, д. 38</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span>🗺️</span>
                 <span>Пинск и Пинский район</span>
               </div>
 

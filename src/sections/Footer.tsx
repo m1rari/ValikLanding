@@ -70,7 +70,7 @@ export default function Footer() {
 
               <div className="flex gap-3 mt-4">
                 <a
-                  href="viber://chat?number=375291645388"
+                  href="viber://chat?number=%2B375291645388"
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-dark rounded-lg border border-foreground/10 hover:border-primary/30 transition-colors text-xs"
                 >
                   💬 Viber

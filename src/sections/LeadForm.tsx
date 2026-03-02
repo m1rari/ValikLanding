@@ -362,7 +362,7 @@ export default function LeadForm() {
               <span>📞</span>
               +375 (29) 164-53-88
             </a>
-            <a href="viber://chat?number=375291645388" className="flex items-center gap-2 hover:text-primary transition-colors">
+            <a href="viber://chat?number=%2B375291645388" className="flex items-center gap-2 hover:text-primary transition-colors">
               <span>💬</span>
               Viber
             </a>

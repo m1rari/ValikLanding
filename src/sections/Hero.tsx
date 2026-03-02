@@ -189,7 +189,7 @@ export default function Hero() {
                 </a>
 
                 <a
-                  href="viber://chat?number=375291645388"
+                  href="viber://chat?number=%2B375291645388"
                   className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-[#7360F2] text-white font-semibold hover:bg-[#7360F2]/90 transition-colors"
                 >
                   <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">

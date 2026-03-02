@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import Image from "next/image";
 import { works } from "@/data/works";
@@ -38,7 +38,7 @@ function Lightbox({
       {/* Стрелка влево */}
       <button
         onClick={onPrev}
-        className="absolute left-3 sm:left-6 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary/80 border border-white/10 text-white transition-all duration-200 hover:scale-110"
+        className="absolute left-3 sm:left-6 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary/80 border border-white/10 text-white transition-all duration-200 hover:scale-110"
         aria-label="Предыдущее фото"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -49,7 +49,7 @@ function Lightbox({
       {/* Стрелка вправо */}
       <button
         onClick={onNext}
-        className="absolute right-3 sm:right-6 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary/80 border border-white/10 text-white transition-all duration-200 hover:scale-110"
+        className="absolute right-3 sm:right-6 z-20 w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-primary/80 border border-white/10 text-white transition-all duration-200 hover:scale-110"
         aria-label="Следующее фото"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -175,21 +175,36 @@ export default function Works() {
   // motionValue для перетаскивания слайдера
   const x = useMotionValue(0);
 
-  // Вычисляем ограничения drag: не выходить за пределы трека
-  const getConstraints = useCallback(() => {
+  // Ограничения drag: не выходить за пределы трека
+  const [dragConstraints, setDragConstraints] = useState<{ left: number; right: number }>({
+    left: 0,
+    right: 0,
+  });
+
+  useEffect(() => {
     const track = trackRef.current;
-    if (!track) return { left: 0, right: 0 };
-    const trackWidth  = track.scrollWidth;
-    const visibleWidth = track.parentElement?.clientWidth ?? 0;
-    return { left: -(trackWidth - visibleWidth), right: 0 };
+    if (!track) return;
+
+    const measure = () => {
+      const trackWidth = track.scrollWidth;
+      const visibleWidth = track.parentElement?.clientWidth ?? 0;
+      const left = Math.min(0, visibleWidth - trackWidth);
+      setDragConstraints({ left, right: 0 });
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+
+    return () => {
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   // Прокрутка на одну карточку кнопками
   const CARD_WIDTH = 336; // w-80 (320) + gap-4 (16)
 
   const scrollBy = (dir: 1 | -1) => {
-    const constraints = getConstraints();
-    const next = Math.max(constraints.left, Math.min(0, x.get() + dir * -CARD_WIDTH));
+    const next = Math.max(dragConstraints.left, Math.min(0, x.get() + dir * -CARD_WIDTH));
     animate(x, next, { type: "spring", stiffness: 200, damping: 30 });
   };
 
@@ -283,7 +298,7 @@ export default function Works() {
                 className="flex gap-4 cursor-grab active:cursor-grabbing will-change-transform"
                 style={{ x }}
                 drag="x"
-                dragConstraints={getConstraints()}
+                dragConstraints={dragConstraints}
                 dragTransition={{ bounceStiffness: 300, bounceDamping: 30 }}
                 dragElastic={0.1}
                 whileDrag={{ cursor: "grabbing" }}

@@ -185,12 +185,43 @@ bot.on("callback_query", async (query) => {
         `pm2 restart ${PM2_APP_NAME}`,
       ];
       const results = [];
+      let hadError = false;
+
       for (const cmd of steps) {
         const r = await runCommand(cmd, { timeout: 120000 });
-        results.push((r.ok ? "✅" : "❌") + " `" + cmd.replace(/^cd "[^"]+" && /, "") + "`\n" + codeBlock(r.out));
-        if (!r.ok) break;
+        results.push(
+          (r.ok ? "✅" : "❌") +
+            " `" +
+            cmd.replace(/^cd "[^"]+" && /, "") +
+            "`\n" +
+            codeBlock(r.out)
+        );
+        if (!r.ok) {
+          hadError = true;
+          break;
+        }
       }
-      await send("📋 *Результат обновления*\n\n" + results.join("\n\n"));
+
+      if (!hadError) {
+        // Получаем информацию о последнем коммите
+        const lastCommit = await runCommand(`cd "${APP_DIR}" && git log -1 --oneline`, {
+          timeout: 15000,
+        });
+
+        if (lastCommit.ok) {
+          await send(
+            "✅ Обновление приложения завершено *успешно*.\n\n" +
+              "📌 *Последний коммит:*\n`" +
+              codeBlock(lastCommit.out) +
+              "`"
+          );
+        } else {
+          // Если по какой-то причине git log не сработал — просто успешное сообщение
+          await send("✅ Обновление приложения завершено *успешно*.");
+        }
+      } else {
+        await send("❌ Обновление завершилось с ошибкой.\n\n📋 *Лог команд:*\n\n" + results.join("\n\n"));
+      }
       return;
     }
 

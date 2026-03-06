@@ -71,7 +71,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs sm:text-sm font-medium mb-5 sm:mb-6"
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
-            Выезд мастера в день обращения
+            Консультация мастера в день обращения
           </motion.div>
 
           {/* H1 */}
@@ -189,7 +189,7 @@ export default function Hero() {
                 </a>
 
                 <a
-                  href="viber://chat?number=375291645388"
+                  href="viber://chat?number=%2B375291645388"
                   className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-[#7360F2] text-white font-semibold hover:bg-[#7360F2]/90 transition-colors"
                 >
                   <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">

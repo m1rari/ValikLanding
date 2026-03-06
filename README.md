@@ -229,6 +229,12 @@ sudo certbot --nginx -d ваш-домен.by -d www.ваш-домен.by
 
 ---
 
+### Telegram Admin Bot — управление сервером из Telegram
+
+В папке `telegram-admin-bot/` — отдельный сервис с кнопками для админа: статус сервера и приложения, перезапуск приложения, обновление (git pull + build + pm2 restart), перезапуск сервера. Подробная установка на сервер: **[telegram-admin-bot/README.md](telegram-admin-bot/README.md)**.
+
+---
+
 ### Вариант В — **Обновление сайта** (после изменений в коде)
 
 ```bash

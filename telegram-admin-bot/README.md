@@ -7,10 +7,18 @@
 Если сайт крутится через **Docker Compose** из корня репозитория (см. основной README), поднимите бота так:
 
 ```bash
-docker compose --profile admin up -d
+docker compose -f docker/docker-compose.yml --profile admin up -d
 ```
 
-В контейнер передаётся `USE_DOCKER_DEPLOY=1`: команды идут через **`docker compose`** в каталоге проекта на хосте (том `/workspace`), перезапускаются сервисы **web** и **nginx**, обновление делает `git pull` → `build web` → `up -d web nginx`. Перезагрузка **всего сервера** из бота отключена — используйте SSH или панель хостинга.
+В контейнер передаётся `USE_DOCKER_DEPLOY=1`: команды идут через **`docker compose -f docker/docker-compose.yml`** в каталоге проекта на хосте (том `/workspace`), перезапускаются сервисы **web** и **nginx**, обновление делает `git pull` → `build web` → `up -d web nginx`. Перезагрузка **всего сервера** из бота отключена — используйте SSH или панель хостинга.
+
+Если продакшен поднимаете с **HTTPS-оверлеем**, в корневом `.env` задайте для бота ту же связку файлов, что и вручную:
+
+```env
+DOCKER_COMPOSE_ARGS=-f docker/docker-compose.yml -f docker/docker-compose.https.yml
+```
+
+Иначе по умолчанию бот использует только `docker/docker-compose.yml` (для `restart` и `ps` этого достаточно; для **`up` после обновления** с TLS лучше указать оба `-f`, как выше).
 
 Переменные **`TELEGRAM_BOT_TOKEN`** и **`TELEGRAM_ADMIN_CHAT_ID`** (или `TELEGRAM_CHAT_ID`) задайте в корневом **`.env`**, который уже подключается к сервису `admin-bot`.
 
@@ -28,10 +36,10 @@ docker compose --profile admin up -d
 
 | Кнопка | Действие |
 |--------|----------|
-| Статус сервера | `docker compose ps`, диск |
-| Статус приложения | `docker compose ps web` |
-| Перезапуск приложения | `docker compose restart web nginx` |
-| Обновить приложение | `git pull`, `docker compose build web`, `up -d web nginx` |
+| Статус сервера | `docker compose -f docker/docker-compose.yml ps`, диск |
+| Статус приложения | `docker compose -f docker/docker-compose.yml ps web` |
+| Перезапуск приложения | `docker compose … restart web nginx` |
+| Обновить приложение | `git pull`, `docker compose … build web`, `up -d web nginx` |
 | Перезапуск сервера | недоступно (сообщение в чате) |
 
 Доступ только у чата с **TELEGRAM_ADMIN_CHAT_ID**.

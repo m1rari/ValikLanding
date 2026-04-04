@@ -8,23 +8,21 @@
 
 ```
 ValikLanding/
-├── src/
-│   ├── app/
-│   │   ├── api/contact/route.ts   # API-маршрут: приём заявок с формы
-│   │   ├── globals.css            # Глобальные стили + Tailwind
-│   │   ├── layout.tsx             # Корневой макет (Header, Footer, мета-теги)
-│   │   └── page.tsx               # Главная страница — сборка всех секций
-│   ├── components/
-│   ├── data/
-│   ├── sections/
-│   └── utils/
+├── src/                           # Next.js App Router, секции, компоненты
+├── public/                        # Статика (изображения работ и т.д.)
 ├── docker/
+│   ├── Dockerfile                 # Сборка Next.js (режим standalone)
+│   ├── docker-compose.yml         # web + nginx (+ admin-bot по профилю admin)
+│   ├── docker-compose.https.yml   # Оверлей: TLS и том Let’s Encrypt
 │   └── nginx/
-│       └── default.conf           # Nginx → прокси на контейнер Next.js
-├── Dockerfile                     # Сборка Next.js (режим standalone)
-├── docker-compose.yml             # web + nginx (+ admin-bot по профилю admin)
+│       ├── default.conf           # Nginx → прокси на контейнер Next.js
+│       └── prod-https.example.conf
 ├── telegram-admin-bot/            # Опциональный бот администратора
+├── package.json
+├── next.config.mjs
 ├── tailwind.config.ts
+├── tsconfig.json
+├── .dockerignore                  # Контекст сборки web — корень репозитория
 ├── .env.local                     # Локальная разработка (секреты, не в git)
 ├── .env.example                   # Шаблон переменных (в т.ч. для Docker на VPS)
 └── README.md
@@ -101,7 +99,7 @@ EMAILJS_PRIVATE_KEY=
 
 > ⚠️ Секреты не публикуйте в git. Если не настроен Telegram или EmailJS, второй канал всё равно может доставить заявку.
 >
-> Для **Docker**: переменные `NEXT_PUBLIC_*` «вшиваются» при **`docker compose build`**; после смены домена или кодов верификации выполните `docker compose build web` снова.
+> Для **Docker**: переменные `NEXT_PUBLIC_*` «вшиваются» при **`docker compose -f docker/docker-compose.yml build`**; после смены домена или кодов верификации выполните `docker compose -f docker/docker-compose.yml build web` снова.
 
 ---
 
@@ -161,8 +159,8 @@ cd /var/www/ValikLanding
 cp .env.example .env
 nano .env   # заполните секреты и NEXT_PUBLIC_SITE_URL под ваш домен
 
-docker compose build web
-docker compose up -d
+docker compose -f docker/docker-compose.yml build web
+docker compose -f docker/docker-compose.yml up -d
 ```
 
 Сайт слушает **порт 80** на хосте: контейнер **nginx** проксирует запросы в контейнер **web** (Next.js внутри сети Compose).
@@ -176,10 +174,10 @@ docker compose up -d
    ```bash
    cp docker/nginx/prod-https.example.conf docker/nginx/prod-https.conf
    ```
-2. На сервере в `/etc/letsencrypt/` должны лежать файлы от Certbot (`fullchain.pem`, `privkey.pem`, `options-ssl-nginx.conf`, `ssl-dhparams.pem`).
+2. На сервере для вашего домена должны быть сертификаты Certbot: `fullchain.pem` и `privkey.pem` в `/etc/letsencrypt/live/<домен>/`. В примере `prod-https.example.conf` TLS настроен внутри файла (без `options-ssl-nginx.conf` / `ssl-dhparams.pem`), иначе nginx нередко не стартует, если этих файлов на хосте нет — тогда **и HTTP, и HTTPS** дают «отказ в подключении». Проверка: `docker compose ... logs nginx`.
 3. Запуск с TLS:
    ```bash
-   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
+   docker compose -f docker/docker-compose.yml -f docker/docker-compose.https.yml up -d
    ```
 
 `docker/nginx/prod-https.conf` в репозиторий не коммитится (см. `.gitignore`).
@@ -191,18 +189,18 @@ docker compose up -d
 ```bash
 cd /var/www/ValikLanding
 git pull
-docker compose build web
-docker compose -f docker-compose.yml -f docker-compose.https.yml up -d web nginx
+docker compose -f docker/docker-compose.yml build web
+docker compose -f docker/docker-compose.yml -f docker/docker-compose.https.yml up -d web nginx
 ```
 
-Если работаете только по HTTP из compose — последняя команда без `-f docker-compose.https.yml`.
+Если работаете только по HTTP из compose — последняя команда без `-f docker/docker-compose.https.yml`.
 
 Если менялись только `NEXT_PUBLIC_*`, обязательно пересоберите образ `web` (см. выше). Секреты в `.env` подхватятся при следующем `up` без пересборки, если не трогали билд-аргументы.
 
 **Admin-бот в Docker (опционально):** профиль `admin` поднимает контейнер с доступом к Docker-сокету для команд «перезапуск / обновление» через Compose. Задайте в `.env` как минимум `TELEGRAM_BOT_TOKEN` и `TELEGRAM_ADMIN_CHAT_ID` (или `TELEGRAM_CHAT_ID`). Запуск:
 
 ```bash
-docker compose --profile admin up -d
+docker compose -f docker/docker-compose.yml --profile admin up -d
 ```
 
 В Docker-режиме кнопка перезагрузки **всего сервера** отключена; перезапуск приложения делается через перезапуск контейнеров `web` и `nginx`. Подробнее: [telegram-admin-bot/README.md](telegram-admin-bot/README.md).
@@ -271,7 +269,7 @@ docker compose --profile admin up -d
 **Заявки не приходят в Telegram?**
 - Убедитесь, что написали боту хотя бы одно сообщение — иначе Chat ID не появится в getUpdates
 - Проверьте токен и Chat ID в `.env.local` (разработка) или в `.env` / настройках Vercel (продакшен)
-- После смены переменных на VPS с Docker выполните `docker compose up -d web` (пересборка `web` не нужна, если менялись только серверные env)
+- После смены переменных на VPS с Docker выполните `docker compose -f docker/docker-compose.yml up -d web` (пересборка `web` не нужна, если менялись только серверные env)
 
 **Как изменить номер телефона?**
 - Найдите `+375 (29) 164-53-88` через поиск в редакторе (Ctrl+Shift+F)

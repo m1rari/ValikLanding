@@ -26,9 +26,12 @@ const BUILD_SCRIPT = process.env.BUILD_SCRIPT || "build";
 const USE_DOCKER_DEPLOY =
   process.env.USE_DOCKER_DEPLOY === "1" || process.env.USE_DOCKER_DEPLOY === "true";
 const WEB_SERVICE_NAME = process.env.WEB_SERVICE_NAME || "web";
+/** Compose-файлы относительно APP_DIR (корень репозитория). Для HTTPS добавьте второй -f в .env. */
+const DOCKER_COMPOSE_ARGS =
+  process.env.DOCKER_COMPOSE_ARGS || "-f docker/docker-compose.yml";
 
 function dockerComposeCmd() {
-  return "docker compose";
+  return `docker compose ${DOCKER_COMPOSE_ARGS}`;
 }
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {

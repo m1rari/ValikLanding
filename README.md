@@ -7,7 +7,7 @@
 ## 🗂 Структура проекта
 
 ```
-landing/
+ValikLanding/
 ├── src/
 │   ├── app/
 │   │   ├── api/contact/route.ts   # API-маршрут: приём заявок с формы
@@ -15,25 +15,18 @@ landing/
 │   │   ├── layout.tsx             # Корневой макет (Header, Footer, мета-теги)
 │   │   └── page.tsx               # Главная страница — сборка всех секций
 │   ├── components/
-│   │   ├── ServiceCard.tsx        # Карточка услуги (иконка + текст)
-│   │   └── ui/
-│   │       ├── Button.tsx         # Переиспользуемая кнопка (Framer Motion)
-│   │       └── Input.tsx          # Поле ввода формы
 │   ├── data/
-│   │   └── services.ts            # Данные 8 услуг (иконки, заголовки, описания)
 │   ├── sections/
-│   │   ├── Header.tsx             # Шапка: лого, навигация, телефон, мессенджеры
-│   │   ├── Hero.tsx               # Главный экран: H1, CTA-кнопки, метки
-│   │   ├── WorkFormats.tsx        # Форматы работы: вкладки «С проектом / Без»
-│   │   ├── Services.tsx           # Сетка 8 карточек услуг
-│   │   ├── Timeline.tsx           # Этапы работы (анимированный таймлайн)
-│   │   ├── LeadForm.tsx           # Форма заявки с валидацией
-│   │   └── Footer.tsx             # Подвал: навигация, контакты, юр. информация
 │   └── utils/
-│       ├── sendTelegram.ts        # Отправка заявки в Telegram-бот
-│       └── sendEmail.ts           # Отправка заявки через EmailJS
-├── tailwind.config.ts             # Дизайн-система: цвета, шрифт, анимации
-├── .env.local                     # ← СОЗДАТЬ ВРУЧНУЮ (секретные ключи)
+├── docker/
+│   └── nginx/
+│       └── default.conf           # Nginx → прокси на контейнер Next.js
+├── Dockerfile                     # Сборка Next.js (режим standalone)
+├── docker-compose.yml             # web + nginx (+ admin-bot по профилю admin)
+├── telegram-admin-bot/            # Опциональный бот администратора
+├── tailwind.config.ts
+├── .env.local                     # Локальная разработка (секреты, не в git)
+├── .env.example                   # Шаблон переменных (в т.ч. для Docker на VPS)
 └── README.md
 ```
 
@@ -60,12 +53,11 @@ landing/
 1. Откройте Telegram → найдите **@BotFather** → введите `/newbot`
 2. Придумайте имя и username для бота → получите **токен** (вида `123456:ABC-DEF...`)
 3. Напишите вашему новому боту любое сообщение (например, «/start»)
-4. Откройте в браузере:
+4. Откройте в браузере (подставьте **ваш** токен от BotFather):
    ```
-   https://api.telegram.org/bot8641084779:AAGlN8zBa-1LsnZ_8W1C3BrEfw_rDTCGDFI/getUpdates
+   https://api.telegram.org/bot<ВАШ_ТОКЕН>/getUpdates
    ```
-5. В ответе найдите `"chat": { "id": 123456789 }` — это ваш **Chat ID**
-517470121
+5. В ответе найдите `"chat": { "id": … }` — это ваш **Chat ID**
 
 ### 2. EmailJS (резервный канал — письмо на email)
 
@@ -80,24 +72,36 @@ landing/
    Скопируйте **Template ID**
 4. **Account** → API Keys → скопируйте **Public Key** и **Private Key**
 
-### 3. Заполните `.env.local`
+### 3. Переменные окружения
 
-Создайте файл `.env.local` в корне проекта `landing/`:
+**Локальная разработка:** создайте `.env.local` в корне репозитория (файл в `.gitignore`).
 
-```env
-# ---- Telegram ----
-TELEGRAM_BOT_TOKEN=123456789:AAF-ваш-токен-от-BotFather
-TELEGRAM_CHAT_ID=123456789
+**Docker на своём сервере:** скопируйте шаблон и заполните секреты в файле `.env` (тоже не коммитьте):
 
-# ---- EmailJS ----
-EMAILJS_SERVICE_ID=service_xxxxxxx
-EMAILJS_TEMPLATE_ID=template_xxxxxxx
-EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxx
-EMAILJS_PRIVATE_KEY=xxxxxxxxxxxxxxx
+```bash
+cp .env.example .env
 ```
 
-> ⚠️ Файл `.env.local` **никогда не загружайте на GitHub** — он уже добавлен в `.gitignore`.
-> Если хотя бы один канал (Telegram или EmailJS) не настроен — заявки всё равно придут через второй.
+Пример содержимого (имена переменных совпадают с `.env.example`):
+
+```env
+# Публичные (для SEO и канонического URL). Для Docker — важно до сборки образа.
+NEXT_PUBLIC_SITE_URL=https://ваш-домен.by
+NEXT_PUBLIC_GOOGLE_VERIFICATION=
+NEXT_PUBLIC_YANDEX_VERIFICATION=
+
+# Заявки с формы
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+EMAILJS_SERVICE_ID=
+EMAILJS_TEMPLATE_ID=
+EMAILJS_PUBLIC_KEY=
+EMAILJS_PRIVATE_KEY=
+```
+
+> ⚠️ Секреты не публикуйте в git. Если не настроен Telegram или EmailJS, второй канал всё равно может доставить заявку.
+>
+> Для **Docker**: переменные `NEXT_PUBLIC_*` «вшиваются» при **`docker compose build`**; после смены домена или кодов верификации выполните `docker compose build web` снова.
 
 ---
 
@@ -108,7 +112,7 @@ EMAILJS_PRIVATE_KEY=xxxxxxxxxxxxxxx
 npm install
 
 # 2. Создать файл с ключами (см. раздел выше)
-# Скопировать .env.local.example → .env.local и заполнить
+# Создайте .env.local и заполните (см. раздел «Переменные окружения»)
 
 # 3. Запустить сервер разработки
 npm run dev
@@ -120,169 +124,154 @@ npm run dev
 
 ## 📦 Деплой на сервер
 
-### Вариант А — **Vercel** (рекомендуется, бесплатно)
+### Вариант А — Vercel (быстро, бесплатный тариф)
 
-Vercel — официальная платформа для Next.js, настройка занимает 5 минут.
+Vercel — официальная платформа для Next.js.
 
-1. **Загрузите код на GitHub:**
+1. Загрузите репозиторий на GitHub и импортируйте проект на [vercel.com](https://vercel.com).
+2. В **Settings → Environment Variables** добавьте переменные из раздела «Переменные окружения» выше (включая `NEXT_PUBLIC_*`, Telegram, EmailJS).
+3. **Deploy**. При необходимости привяжите домен в **Settings → Domains** и настройте DNS у регистратора (CNAME на `cname.vercel-dns.com` и т.п. — подскажет мастер Vercel).
+
+---
+
+### Вариант Б — свой VPS с Docker Compose (рекомендуемый вариант для Linux)
+
+На сервере нужны только **Docker** и **Docker Compose v2** (плагин `docker compose`).
+
+```bash
+# Пример: Ubuntu — установка Docker (один раз)
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+sudo usermod -aG docker "$USER"   # перелогиньтесь, чтобы группа применилась
+```
+
+**Развёртывание проекта:**
+
+```bash
+sudo mkdir -p /var/www && sudo chown "$USER":"$USER" /var/www
+git clone https://github.com/ВАШ_АККАУНТ/ValikLanding.git /var/www/ValikLanding
+cd /var/www/ValikLanding
+
+cp .env.example .env
+nano .env   # заполните секреты и NEXT_PUBLIC_SITE_URL под ваш домен
+
+docker compose build web
+docker compose up -d
+```
+
+Сайт слушает **порт 80** на хосте: контейнер **nginx** проксирует запросы в контейнер **web** (Next.js внутри сети Compose).
+
+**Проверка:** `curl -I http://127.0.0.1` на сервере или откройте IP/домен в браузере.
+
+**HTTPS (редирект на 443 и Let’s Encrypt, как в типичном конфиге на хосте)**  
+У вас в Nginx на хосте указано `proxy_pass http://localhost:3000`. В Docker **контейнерный** Nginx должен ходить на сервис **`web:3000`**, а не на `localhost`. Пути к сертификатам в файле конфигурации можно оставить те же (`/etc/letsencrypt/...`), если смонтировать каталог с хоста в контейнер.
+
+1. Скопируйте пример и при необходимости замените домен `pinsk-elektrik.by` на свой:
    ```bash
-   git init
-   git add .
-   git commit -m "initial commit"
-   git remote add origin https://github.com/ВАШ_АККАУНТ/electromaster.git
-   git push -u origin main
+   cp docker/nginx/prod-https.example.conf docker/nginx/prod-https.conf
+   ```
+2. На сервере в `/etc/letsencrypt/` должны лежать файлы от Certbot (`fullchain.pem`, `privkey.pem`, `options-ssl-nginx.conf`, `ssl-dhparams.pem`).
+3. Запуск с TLS:
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
    ```
 
-2. **Зайдите на [vercel.com](https://vercel.com)** → Sign Up (через GitHub аккаунт)
+`docker/nginx/prod-https.conf` в репозиторий не коммитится (см. `.gitignore`).
 
-3. **New Project** → импортируйте репозиторий из GitHub
+**Без Nginx в Docker:** можно опубликовать только `web` на `127.0.0.1:3000` и оставить **ваш текущий системный** Nginx с `proxy_pass http://127.0.0.1:3000` и SSL — тогда отдельный compose-файл HTTPS не нужен.
 
-4. **Переменные окружения** — перед деплоем добавьте ключи:
-   - В Vercel: **Settings → Environment Variables**
-   - Добавьте все 6 переменных из `.env.local` (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID и т.д.)
-
-5. Нажмите **Deploy** — сайт автоматически опубликуется на домене `*.vercel.app`
-
-6. **Свой домен** (если есть):
-   - Vercel: **Settings → Domains** → Add Domain → введите ваш домен
-   - В настройках DNS у регистратора домена добавьте CNAME-запись:
-     ```
-     CNAME  www  cname.vercel-dns.com
-     A      @    76.76.21.21
-     ```
-
----
-
-### Вариант Б — **VPS-сервер** (Linux, Ubuntu 22.04)
-
-Если у вас есть собственный сервер (например, на timeweb.cloud, beget.com и т.д.):
+**Обновление после `git push`:**
 
 ```bash
-# 1. Подключитесь к серверу по SSH
-ssh root@ВАШ_IP
-
-# 2. Установите Node.js 20 (если не установлен)
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-
-# 3. Клонируйте репозиторий
-git clone https://github.com/ВАШ_АККАУНТ/electromaster.git /var/www/electromaster
-cd /var/www/electromaster
-
-# 4. Создайте файл с переменными окружения
-nano .env.local
-# Вставьте содержимое из раздела выше, сохраните (Ctrl+O, Ctrl+X)
-
-# 5. Установите зависимости и соберите проект
-npm install
-npm run build
-
-# 6. Установите pm2 (менеджер процессов)
-npm install -g pm2
-
-# 7. Запустите приложение через pm2
-pm2 start npm --name "ValikLanding" -- start
-pm2 save           # Сохранить список процессов
-pm2 startup        # Автозапуск при перезагрузке сервера
-
-# Сайт работает на порту 3000
-```
-
-**Настройка Nginx (обратный прокси + HTTPS):**
-
-```bash
-# Установить Nginx
-sudo apt install nginx
-
-# Создать конфиг для сайта
-sudo nano /etc/nginx/sites-available/ValikLanding
-```
-
-Вставьте конфигурацию:
-```nginx
-server {
-    listen 80;
-    server_name ваш-домен.by www.ваш-домен.by;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-или новый 
-   server {
-    listen 80;
-    server_name pinsk-elektrik.by www.pinsk-elektrik.by;
-
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name pinsk-elektrik.by www.pinsk-elektrik.by;
-
-    ssl_certificate /etc/letsencrypt/live/pinsk-elektrik.by/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/pinsk-elektrik.by/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-
-```bash
-# Активировать конфиг
-sudo ln -s /etc/nginx/sites-available/ValikLanding /etc/nginx/sites-enabled/
-sudo nginx -t          # Проверить конфиг на ошибки
-sudo systemctl reload nginx
-
-# Установить SSL-сертификат (бесплатно через Let's Encrypt)
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d ваш-домен.by -d www.ваш-домен.by
-# Следуйте инструкциям, сертификат обновляется автоматически
-```
-
----
-
-### Telegram Admin Bot — управление сервером из Telegram
-
-В папке `telegram-admin-bot/` — отдельный сервис с кнопками для админа: статус сервера и приложения, перезапуск приложения, обновление (git pull + build + pm2 restart), перезапуск сервера. Подробная установка на сервер: **[telegram-admin-bot/README.md](telegram-admin-bot/README.md)**.
-
----
-
-### Вариант В — **Обновление сайта** (после изменений в коде)
-
-```bash
-# На VPS — стянуть изменения и пересобрать
 cd /var/www/ValikLanding
 git pull
-npm run build
-pm2 restart ValikLanding
+docker compose build web
+docker compose -f docker-compose.yml -f docker-compose.https.yml up -d web nginx
 ```
+
+Если работаете только по HTTP из compose — последняя команда без `-f docker-compose.https.yml`.
+
+Если менялись только `NEXT_PUBLIC_*`, обязательно пересоберите образ `web` (см. выше). Секреты в `.env` подхватятся при следующем `up` без пересборки, если не трогали билд-аргументы.
+
+**Admin-бот в Docker (опционально):** профиль `admin` поднимает контейнер с доступом к Docker-сокету для команд «перезапуск / обновление» через Compose. Задайте в `.env` как минимум `TELEGRAM_BOT_TOKEN` и `TELEGRAM_ADMIN_CHAT_ID` (или `TELEGRAM_CHAT_ID`). Запуск:
+
+```bash
+docker compose --profile admin up -d
+```
+
+В Docker-режиме кнопка перезагрузки **всего сервера** отключена; перезапуск приложения делается через перезапуск контейнеров `web` и `nginx`. Подробнее: [telegram-admin-bot/README.md](telegram-admin-bot/README.md).
+
+---
+
+### Вариант В — VPS без Docker (Node + PM2 + системный Nginx)
+
+Если Docker не используете, можно по-прежнему собирать проект на сервере: установите Node.js 20, выполните `npm ci`, `npm run build`, запуск через `pm2 start npm --name ValikLanding -- start`, а Nginx настройте как обратный прокси на `http://127.0.0.1:3000`. Пошагово это дублирует стандартные гайды по Next.js + PM2; в текущем репозитории основная инструкция ориентирована на **Docker Compose**.
+
+---
+
+## 🔍 Что уже настроено для SEO
+
+| Что | Где | Описание |
+|---|---|---|
+| Meta-теги | `src/app/layout.tsx` | title, description, keywords, robots |
+| Open Graph / Twitter | `src/app/layout.tsx` | Превью в соцсетях |
+| Canonical URL | `src/app/layout.tsx` | Основной URL страницы |
+| OG-изображение | `src/app/opengraph-image.tsx` | 1200×630 |
+| robots.txt | `src/app/robots.ts` | Индексация, sitemap |
+| sitemap.xml | `src/app/sitemap.ts` | Карта сайта |
+| JSON-LD (LocalBusiness) | `src/components/JsonLd.tsx` | Разметка для поисковиков |
+| Яндекс.Метрика | `src/components/YandexMetrika.tsx` | Счётчик посещений |
+
+После деплоя проверьте в браузере: `/robots.txt`, `/sitemap.xml`, `/opengraph-image.png`.
+
+---
+
+## 📌 Индексация: Google и Яндекс
+
+### Шаг 1 — Домен и продакшен-URL
+
+Укажите в `.env.local` (или в Vercel / в `.env` на сервере) переменную `NEXT_PUBLIC_SITE_URL=https://ваш-домен.by` и пересоберите приложение.
+
+### Шаг 2 — Доступность
+
+Откройте `https://ваш-сайт/robots.txt` и `https://ваш-сайт/sitemap.xml` — ответы должны быть успешными.
+
+### Шаг 3 — Google Search Console
+
+1. [search.google.com/search-console](https://search.google.com/search-console) → ресурс по префиксу URL.
+2. Верификация через meta-тег: значение `content` вставьте в `NEXT_PUBLIC_GOOGLE_VERIFICATION`, пересоберите и задеплойте сайт, затем подтвердите в кабинете Google.
+3. Раздел «Сайтмапы» → добавьте `sitemap.xml`.
+
+### Шаг 4 — Яндекс.Вебмастер
+
+1. [webmaster.yandex.ru](https://webmaster.yandex.ru) → добавить сайт.
+2. Верификация meta-тегом → `NEXT_PUBLIC_YANDEX_VERIFICATION`, пересборка и деплой.
+3. Индексирование → Sitemap: `https://ваш-домен.by/sitemap.xml`.
+
+### Шаг 5 — Rich Results
+
+[search.google.com/test/rich-results](https://search.google.com/test/rich-results) — проверка типа **LocalBusiness**.
+
+### Шаг 6 — Яндекс.Бизнес и Google «Мой бизнес» (по желанию)
+
+Карточки на картах и в локальном поиске: [business.yandex.ru](https://business.yandex.ru), [business.google.com](https://business.google.com). Укажите сайт `https://ваш-домен.by`, телефон и адрес из подвала сайта.
+
+**Ориентиры по срокам индексации:** Google — часто от нескольких дней до нескольких недель; Яндекс — обычно быстрее на старте. Новые сайты могут индексироваться дольше.
+
 ---
 
 ## 📝 Частые вопросы
 
 **Заявки не приходят в Telegram?**
 - Убедитесь, что написали боту хотя бы одно сообщение — иначе Chat ID не появится в getUpdates
-- Проверьте правильность токена и Chat ID в `.env.local`
-- На Vercel проверьте переменные в разделе Environment Variables
+- Проверьте токен и Chat ID в `.env.local` (разработка) или в `.env` / настройках Vercel (продакшен)
+- После смены переменных на VPS с Docker выполните `docker compose up -d web` (пересборка `web` не нужна, если менялись только серверные env)
 
 **Как изменить номер телефона?**
 - Найдите `+375 (29) 164-53-88` через поиск в редакторе (Ctrl+Shift+F)
@@ -304,197 +293,3 @@ pm2 restart ValikLanding
 УНП 291466464  
 д. Берёзовичи, ул. Садовая, д. 38  
 Тел.: +375 (29) 164-53-88
-
-
-
-
-# ЭлектроМастер — Лендинг ИП Шугайло В.Г.
-
-Сайт-лендинг для электрика в Пинске. Построен на **Next.js 14** (App Router), TypeScript, Tailwind CSS.
-
----
-
-## Быстрый старт
-
-```bash
-npm install
-npm run dev        # разработка → http://localhost:3000
-npm run build      # сборка для продакшена
-npm run start      # запуск собранного сайта
-```
-
----
-
-## Переменные окружения
-
-Создайте файл `.env.local` в корне проекта:
-
-```env
-# Полный URL сайта (без слеша в конце). ОБЯЗАТЕЛЬНО после получения домена!
-NEXT_PUBLIC_SITE_URL=https://ваш-домен.by
-
-# Код верификации Google Search Console (шаг 3 инструкции ниже)
-NEXT_PUBLIC_GOOGLE_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-# Код верификации Яндекс.Вебмастер (шаг 4 инструкции ниже)
-NEXT_PUBLIC_YANDEX_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
----
-
-## Что уже настроено для SEO
-
-| Что | Где | Описание |
-|---|---|---|
-| Meta-теги | `src/app/layout.tsx` | title, description, keywords, robots |
-| Open Graph | `src/app/layout.tsx` | Превью при репосте в соцсетях и мессенджерах |
-| Twitter Card | `src/app/layout.tsx` | Превью при репосте в Twitter/X |
-| Canonical URL | `src/app/layout.tsx` | Указывает основной URL страницы |
-| OG-изображение | `src/app/opengraph-image.tsx` | Генерируется автоматически (1200×630) |
-| robots.txt | `src/app/robots.ts` | Разрешает индексацию, указывает sitemap |
-| sitemap.xml | `src/app/sitemap.ts` | Карта сайта для поисковиков |
-| JSON-LD (LocalBusiness) | `src/components/JsonLd.tsx` | Структурированные данные для Google/Яндекс |
-| Яндекс.Метрика | `src/components/YandexMetrika.tsx` | Счётчик посещений (ID: 107061110) |
-
-После сборки и деплоя проверить:
-- `https://ваш-сайт/robots.txt`
-- `https://ваш-сайт/sitemap.xml`
-- `https://ваш-сайт/opengraph-image.png`
-
----
-
-## Инструкция: как добавить сайт в Google и Яндекс
-
-### Шаг 1 — Получить домен и хостинг
-
-1. Зарегистрируйте домен (например, `.by`, `.com`, `.ru`) у любого регистратора:
-   - [reg.ru](https://reg.ru) — популярный российский
-   - [hoster.by](https://hoster.by) — белорусский, домены `.by`
-   - [nic.by](https://nic.by) — официальный регистратор `.by`
-2. Задеплойте сайт (рекомендуется [Vercel](https://vercel.com) — бесплатно для Next.js):
-   - Зарегистрируйтесь на vercel.com
-   - Подключите GitHub-репозиторий
-   - Vercel автоматически соберёт и задеплоит сайт
-   - Привяжите свой домен в настройках проекта на Vercel
-3. Установите в `.env.local` (и в настройках Vercel → Environment Variables):
-   ```
-   NEXT_PUBLIC_SITE_URL=https://ваш-домен.by
-   ```
-
----
-
-### Шаг 2 — Убедиться что сайт доступен
-
-Откройте в браузере:
-- `https://ваш-сайт/robots.txt` — должен показать текст с разрешениями
-- `https://ваш-сайт/sitemap.xml` — должен показать XML с URL страниц
-
----
-
-### Шаг 3 — Google Search Console
-
-1. Перейдите на [search.google.com/search-console](https://search.google.com/search-console)
-2. Нажмите **«Добавить ресурс»** → выберите **«Префикс URL»**
-3. Введите полный URL: `https://ваш-домен.by`
-4. Google предложит несколько способов верификации. Выберите **«HTML-тег»**:
-   - Скопируйте значение из атрибута `content`, например:
-     `abc123def456ghi789jkl012mno345pqr678stu901vwx234`
-   - Вставьте его в `.env.local`:
-     ```
-     NEXT_PUBLIC_GOOGLE_VERIFICATION=abc123def456ghi789jkl012mno345pqr678stu901vwx234
-     ```
-   - Пересоберите и задеплойте сайт (`npm run build`)
-   - Нажмите **«Подтвердить»** в Google Search Console
-5. После верификации нажмите **«Сайтмап»** в левом меню → введите `sitemap.xml` → **«Отправить»**
-6. Подождите 1–3 дня, пока Google проиндексирует сайт.
-
-> **Совет:** В разделе «Покрытие» → «Действительные страницы» можно увидеть, какие страницы уже проиндексированы.
-
----
-
-### Шаг 4 — Яндекс.Вебмастер
-
-1. Перейдите на [webmaster.yandex.ru](https://webmaster.yandex.ru)
-2. Нажмите **«+»** (добавить сайт) → введите URL сайта
-3. Выберите способ верификации **«meta-тег»**:
-   - Скопируйте значение из `content`, например: `a1b2c3d4e5f6g7h8i9j0`
-   - Вставьте в `.env.local`:
-     ```
-     NEXT_PUBLIC_YANDEX_VERIFICATION=a1b2c3d4e5f6g7h8i9j0
-     ```
-   - Пересоберите и задеплойте сайт
-   - Нажмите **«Проверить»** в Яндекс.Вебмастер
-4. После верификации перейдите в **«Индексирование»** → **«Файл Sitemap»**:
-   - Нажмите **«Добавить»**
-   - Введите: `https://ваш-домен.by/sitemap.xml`
-   - Нажмите **«Добавить»**
-5. В разделе **«Проверка»** → **«Индексирование страниц»** нажмите **«Переобходить»** — Яндекс начнёт индексацию быстрее.
-
----
-
-### Шаг 5 — Проверить структурированные данные (JSON-LD)
-
-Убедитесь, что Google правильно видит бизнес-информацию:
-
-1. Перейдите на [search.google.com/test/rich-results](https://search.google.com/test/rich-results)
-2. Введите URL сайта
-3. Нажмите **«Проверить URL»**
-4. Вы должны увидеть **LocalBusiness** с зелёной галочкой
-
----
-
-### Шаг 6 — Яндекс.Бизнес (дополнительно, очень рекомендуется)
-
-Яндекс.Бизнес — это карточка на Яндекс Картах и в поиске. Сильно повышает видимость для локального бизнеса:
-
-1. Перейдите на [business.yandex.ru](https://business.yandex.ru)
-2. Нажмите **«Добавить организацию»**
-3. Заполните:
-   - Название: *ИП Шугайло — Электромонтажные работы*
-   - Категория: *Электрик*
-   - Адрес: *Брестская обл., Пинский р-н, д. Берёзовичи, ул. Садовая, 38*
-   - Телефон: *+375 29 164-53-88*
-   - Сайт: *https://ваш-домен.by*
-   - Режим работы: *Пн–Вс: 8:00–21:00*
-4. Добавьте фотографии выполненных работ из папки `public/works/`
-5. Дождитесь модерации (1–5 дней)
-
----
-
-### Шаг 7 — Google Мой бизнес (дополнительно)
-
-Аналог Яндекс.Бизнеса от Google:
-
-1. Перейдите на [business.google.com](https://business.google.com)
-2. Нажмите **«Добавить компанию»**
-3. Заполните аналогично шагу 6
-4. Google пришлёт открытку с кодом верификации по почте (1–2 недели)
-
----
-
-## Ожидаемые сроки индексации
-
-| Поисковик | Первая индексация | Полное индексирование |
-|---|---|---|
-| Google | 1–7 дней | 2–4 недели |
-| Яндекс | 1–3 дня | 1–2 недели |
-
-> Новые сайты без истории могут индексироваться дольше. После появления первых посетителей процесс ускоряется.
-
----
-
-## Структура проекта
-
-```
-src/
-├── app/
-│   ├── layout.tsx          ← SEO-метаданные, JSON-LD, шрифты
-│   ├── page.tsx            ← Главная страница
-│   ├── robots.ts           ← /robots.txt
-│   ├── sitemap.ts          ← /sitemap.xml
-│   └── opengraph-image.tsx ← /opengraph-image.png (OG-превью)
-├── components/
-│   ├── JsonLd.tsx          ← Структурированные данные (schema.org)
-│   └── YandexMetrika.tsx   ← Яндекс.Метрика
-└── sections/               ← Секции лендинга
-```

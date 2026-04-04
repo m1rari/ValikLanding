@@ -23,6 +23,13 @@ const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM
 const APP_DIR = process.env.APP_DIR || "/var/www/ValikLanding";
 const PM2_APP_NAME = process.env.PM2_APP_NAME || "all";
 const BUILD_SCRIPT = process.env.BUILD_SCRIPT || "build";
+const USE_DOCKER_DEPLOY =
+  process.env.USE_DOCKER_DEPLOY === "1" || process.env.USE_DOCKER_DEPLOY === "true";
+const WEB_SERVICE_NAME = process.env.WEB_SERVICE_NAME || "web";
+
+function dockerComposeCmd() {
+  return "docker compose";
+}
 
 if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
   console.error("Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local (корень проекта) или в telegram-admin-bot/.env");
@@ -144,6 +151,27 @@ bot.on("callback_query", async (query) => {
 
   try {
     if (data === "status_server") {
+      if (USE_DOCKER_DEPLOY) {
+        const ps = await runCommand(`${dockerComposeCmd()} ps`, { cwd: APP_DIR, timeout: 30000 });
+        const dfdocker = await runCommand(`${dockerComposeCmd()} exec -T ${WEB_SERVICE_NAME} df -h / 2>/dev/null || df -h /`, {
+          cwd: APP_DIR,
+          timeout: 30000,
+        });
+        const msg = [
+          "🐳 *Статус (Docker Compose)*",
+          "",
+          "*Контейнеры:*",
+          "`" + codeBlock(ps.out) + "`",
+          "",
+          "*Диск (в контейнере web или среде бота):*",
+          "`" + codeBlock(dfdocker.out) + "`",
+          "",
+          "_Полный uptime/память хоста смотрите по SSH; здесь только проект._",
+        ].join("\n");
+        await send(msg);
+        return;
+      }
+
       const status = await runCommand("uptime");
       const mem = await runCommand("free -m");
       const disk = await runCommand("df -h /");
@@ -164,12 +192,31 @@ bot.on("callback_query", async (query) => {
     }
 
     if (data === "status_app") {
+      if (USE_DOCKER_DEPLOY) {
+        const { out } = await runCommand(`${dockerComposeCmd()} ps ${WEB_SERVICE_NAME}`, {
+          cwd: APP_DIR,
+          timeout: 30000,
+        });
+        await send("📦 *Статус приложения (Docker)*\n\n`" + codeBlock(out) + "`");
+        return;
+      }
+
       const { out } = await runCommand("pm2 list");
       await send("📦 *Статус приложения (PM2)*\n\n`" + codeBlock(out) + "`");
       return;
     }
 
     if (data === "restart_app") {
+      if (USE_DOCKER_DEPLOY) {
+        await send("Перезапуск контейнеров web и nginx…");
+        const { ok, out } = await runCommand(`${dockerComposeCmd()} restart ${WEB_SERVICE_NAME} nginx`, {
+          cwd: APP_DIR,
+          timeout: 120000,
+        });
+        await send((ok ? "✅ Контейнеры перезапущены.\n\n" : "❌ Ошибка:\n\n") + "`" + codeBlock(out) + "`");
+        return;
+      }
+
       await send("Перезапуск приложения…");
       const { ok, out } = await runCommand(`pm2 restart ${PM2_APP_NAME}`);
       await send((ok ? "✅ Приложение перезапущено.\n\n" : "❌ Ошибка:\n\n") + "`" + codeBlock(out) + "`");
@@ -177,6 +224,52 @@ bot.on("callback_query", async (query) => {
     }
 
     if (data === "update_app") {
+      if (USE_DOCKER_DEPLOY) {
+        await send("⬆️ Обновление: git pull, docker compose build web, up -d web nginx…");
+        const steps = [
+          `git fetch`,
+          `git pull`,
+          `${dockerComposeCmd()} build web`,
+          `${dockerComposeCmd()} up -d web nginx`,
+        ];
+        const results = [];
+        let hadError = false;
+
+        for (const part of steps) {
+          const r = await runCommand(part, { timeout: 600000, cwd: APP_DIR });
+          const label = part;
+          results.push((r.ok ? "✅" : "❌") + " `" + label + "`\n" + codeBlock(r.out));
+          if (!r.ok) {
+            hadError = true;
+            break;
+          }
+        }
+
+        if (!hadError) {
+          const lastCommit = await runCommand(`git log -1 --oneline`, {
+            timeout: 15000,
+            cwd: APP_DIR,
+          });
+
+          let text = "✅ Образ web пересобран, контейнеры web и nginx обновлены.";
+
+          if (lastCommit.ok && lastCommit.out) {
+            const firstLine = String(lastCommit.out).split("\n")[0];
+            const shortLine = firstLine.length > 300 ? firstLine.slice(0, 300) + "…" : firstLine;
+            text += "\n\nПоследний коммит:\n" + shortLine;
+          }
+
+          text += "\n\n_Если поднят профиль admin, перезапустите admin-bot вручную при необходимости._";
+          await bot.sendMessage(chatId, text);
+        } else {
+          await send("❌ Обновление завершилось с ошибкой.");
+          const fullLog = results.join("\n\n");
+          const trimmedLog = fullLog.length > 3400 ? fullLog.slice(0, 3400) + "… (обрезано)" : fullLog;
+          await send("📋 *Лог команд:*\n\n`" + codeBlock(trimmedLog) + "`");
+        }
+        return;
+      }
+
       await send("⬆️ Обновление: git fetch, git pull, npm run " + BUILD_SCRIPT + ", pm2 restart…");
       const steps = [
         `cd "${APP_DIR}" && git fetch`,
@@ -203,7 +296,6 @@ bot.on("callback_query", async (query) => {
       }
 
       if (!hadError) {
-        // Получаем информацию о последнем коммите (без Markdown, чтобы не ломать разметку)
         const lastCommit = await runCommand(`cd "${APP_DIR}" && git log -1 --oneline`, {
           timeout: 15000,
         });
@@ -216,22 +308,25 @@ bot.on("callback_query", async (query) => {
           text += "\n\nПоследний коммит:\n" + shortLine;
         }
 
-        // Отправляем без parse_mode, чтобы Telegram точно принял сообщение
         await bot.sendMessage(chatId, text);
       } else {
-        // Сначала короткое сообщение о неудаче (чтобы точно дошло)
         await send("❌ Обновление завершилось с ошибкой.");
-
-        // Формируем и ограничиваем лог по длине, чтобы Telegram не отбрасывал сообщение
         const fullLog = results.join("\n\n");
         const trimmedLog = fullLog.length > 3400 ? fullLog.slice(0, 3400) + "… (обрезано)" : fullLog;
-
         await send("📋 *Лог команд:*\n\n`" + codeBlock(trimmedLog) + "`");
       }
       return;
     }
 
     if (data === "restart_server") {
+      if (USE_DOCKER_DEPLOY) {
+        await bot.sendMessage(
+          chatId,
+          "В режиме Docker перезагрузку всего сервера из бота отключили. Используйте панель хостинга или SSH (sudo reboot)."
+        );
+        return;
+      }
+
       await send(
         "⚠️ Перезапуск сервера выполнит *reboot*.\nПодтвердите: нажмите кнопку ещё раз в течение 30 сек.",
         {
@@ -244,6 +339,14 @@ bot.on("callback_query", async (query) => {
     }
 
     if (data === "confirm_reboot") {
+      if (USE_DOCKER_DEPLOY) {
+        await bot.sendMessage(
+          chatId,
+          "Перезагрузка сервера из Docker-режима недоступна. Выполните `sudo reboot` по SSH."
+        );
+        return;
+      }
+
       await send("🔴 Выполняю перезагрузку сервера…");
       await runCommand("sudo reboot", { timeout: 5000 }).catch(() => ({}));
       return;

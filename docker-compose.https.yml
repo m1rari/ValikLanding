@@ -1,0 +1,20 @@
+# HTTPS (Let’s Encrypt на хосте — каталог /etc/letsencrypt монтируется в контейнер).
+#
+# Подготовка:
+#   cp docker/nginx/prod-https.example.conf docker/nginx/prod-https.conf
+#   # при необходимости поменяйте домен в prod-https.conf
+#
+# Запуск:
+#   docker compose -f docker-compose.yml -f docker-compose.https.yml up -d
+#
+# !reset — полностью заменяет ports/volumes базового compose, чтобы не тянуть HTTP-only конфиг.
+# Первый выпуск сертификата проще на хосте: certbot (временно без Docker на :80 или standalone).
+
+services:
+  nginx:
+    ports: !reset
+      - "80:80"
+      - "443:443"
+    volumes: !reset
+      - ./docker/nginx/prod-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro

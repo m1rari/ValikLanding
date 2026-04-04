@@ -1,0 +1,41 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://example.com}
+        NEXT_PUBLIC_GOOGLE_VERIFICATION: ${NEXT_PUBLIC_GOOGLE_VERIFICATION:-}
+        NEXT_PUBLIC_YANDEX_VERIFICATION: ${NEXT_PUBLIC_YANDEX_VERIFICATION:-}
+    env_file:
+      - .env
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  admin-bot:
+    profiles: ["admin"]
+    build:
+      context: ./telegram-admin-bot
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      USE_DOCKER_DEPLOY: "1"
+      APP_DIR: /workspace
+      WEB_SERVICE_NAME: web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace:rw
+    user: root
+    restart: unless-stopped

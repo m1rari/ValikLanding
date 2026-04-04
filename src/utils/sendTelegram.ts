@@ -11,7 +11,7 @@
 //
 // Если с сервера нет прямого доступа до api.telegram.org (блокировка и т.п.):
 //   • TELEGRAM_HTTP_PROXY=http://user:pass@хост:порт — свой HTTP-прокси (приоритетнее), или
-//   • TELEGRAM_USE_PROXIFLY=true и опционально PROXIFLY_API_KEY — список через npm-пакет proxifly.
+//   • TELEGRAM_USE_PROXIFLY=true и опционально PROXIFLY_API_KEY — HTTP API api.proxifly.dev (без npm-пакета).
 // ============================================================
 
 import { ProxyAgent, fetch as undiciFetch } from "undici";
@@ -34,26 +34,56 @@ function extractHttpProxyUrl(raw: unknown): string | null {
   return null;
 }
 
+/** Прямой запрос к api.proxifly.dev: пакет proxifly падает на пустом/битом JSON от API. */
 async function fetchProxiflyHttpProxyUrl(): Promise<string> {
-  const { default: Proxifly } = await import("proxifly");
-  const proxifly = new Proxifly({
-    apiKey: process.env.PROXIFLY_API_KEY?.trim() || undefined,
-  });
-
-  const country = process.env.PROXIFLY_PROXY_COUNTRY?.trim();
-  const raw = await proxifly.getProxy({
-    protocol: "http",
-    quantity: 1,
+  const params = new URLSearchParams({
     format: "json",
-    timeout: 45_000,
-    ...(country ? { country } : {}),
+    protocol: "http",
+    quantity: "1",
   });
+  const country = process.env.PROXIFLY_PROXY_COUNTRY?.trim();
+  if (country) params.set("country", country);
 
-  const url = extractHttpProxyUrl(raw);
-  if (!url) {
-    throw new Error("Proxifly: в ответе нет HTTP(S)-прокси (нужен protocol=http).");
+  const apiUrl = `https://api.proxifly.dev/proxy?${params.toString()}`;
+  const apiKey = process.env.PROXIFLY_API_KEY?.trim();
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+
+  let lastMessage = "Proxifly: не удалось получить прокси";
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 400 * attempt));
+    let res: Awaited<ReturnType<typeof undiciFetch>>;
+    try {
+      res = await undiciFetch(apiUrl, {
+        headers,
+        signal: AbortSignal.timeout(45_000),
+      });
+    } catch (e) {
+      lastMessage = `Proxifly: ${e instanceof Error ? e.message : String(e)}`;
+      continue;
+    }
+    const text = await res.text();
+    if (!res.ok) {
+      lastMessage = `Proxifly HTTP ${res.status}: ${text.slice(0, 200)}`;
+      continue;
+    }
+    const trimmed = text.trim();
+    if (!trimmed) {
+      lastMessage = "Proxifly: пустой ответ";
+      continue;
+    }
+    let raw: unknown;
+    try {
+      raw = JSON.parse(trimmed);
+    } catch {
+      lastMessage = `Proxifly: не JSON (${trimmed.slice(0, 100)})`;
+      continue;
+    }
+    const proxyUrl = extractHttpProxyUrl(raw);
+    if (proxyUrl) return proxyUrl;
+    lastMessage = "Proxifly: в ответе нет HTTP(S)-прокси";
   }
-  return url;
+  throw new Error(lastMessage);
 }
 
 /** Статический прокси из .env или кэшированный URL от Proxifly. */

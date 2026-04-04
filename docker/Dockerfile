@@ -34,6 +34,9 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# next/image в standalone не подтягивает sharp из трейса — копируем с билдера (Alpine/musl).
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/sharp ./node_modules/sharp
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@img ./node_modules/@img
 
 USER nextjs
 

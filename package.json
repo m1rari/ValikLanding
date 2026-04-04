@@ -12,10 +12,12 @@
     "@emailjs/browser": "^4.4.1",
     "framer-motion": "^12.34.3",
     "next": "14.2.35",
-    "sharp": "^0.33.5",
+    "proxifly": "^3.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "react-hook-form": "^7.71.2"
+    "react-hook-form": "^7.71.2",
+    "sharp": "^0.33.5",
+    "undici": "^6.21.3"
   },
   "devDependencies": {
     "@types/node": "^20",

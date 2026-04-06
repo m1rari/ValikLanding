@@ -15,6 +15,16 @@ const montserrat = Montserrat({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://electro-pinsk.by";
 
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION?.trim();
+const yandexVerification = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION?.trim();
+const siteVerification =
+  googleVerification || yandexVerification
+    ? {
+        ...(googleVerification ? { google: googleVerification } : {}),
+        ...(yandexVerification ? { yandex: yandexVerification } : {}),
+      }
+    : undefined;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -74,14 +84,8 @@ export const metadata: Metadata = {
     description: "Надёжно, по стандартам. Выезд мастера в день обращения.",
     images: ["/opengraph-image.png"],
   },
-  alternates: {
-    canonical: "/",
-  },
-  // Коды верификации: заполните после регистрации в Google Search Console и Яндекс.Вебмастер
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION ?? "",
-    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION ?? "",
-  },
+  // Коды верификации: только значение из content="..." (не весь HTML тега). NEXT_PUBLIC_* подставляется при сборке/старте.
+  ...(siteVerification ? { verification: siteVerification } : {}),
 };
 
 export default function RootLayout({

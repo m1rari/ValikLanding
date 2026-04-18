@@ -20,10 +20,14 @@ interface TelegramPayload {
 }
 
 export async function sendTelegram(data: TelegramPayload): Promise<void> {
-  const token  = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatIds = (process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID || "")
+    .split(/[,\s;]+/)
+    .map((id: string) => id.trim())
+    .filter(Boolean)
+    .filter((id: string, index: number, arr: string[]) => arr.indexOf(id) === index);
 
-  if (!token || !chatId) {
+  if (!token || chatIds.length === 0) {
     console.warn("Telegram credentials not configured");
     return;
   }
@@ -46,19 +50,33 @@ export async function sendTelegram(data: TelegramPayload): Promise<void> {
   // URL Telegram Bot API для отправки сообщения
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "Markdown", // Включаем Markdown-форматирование
-    }),
-  });
+  const results = await Promise.allSettled(
+    chatIds.map(async (chatId: string) => {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "Markdown", // Включаем Markdown-форматирование
+        }),
+      });
 
-  // Если Telegram API вернул ошибку — бросаем исключение
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Telegram API error: ${error}`);
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`chat_id=${chatId}: ${error}`);
+      }
+    })
+  );
+
+  const successful = results.some((result: PromiseSettledResult<void>) => result.status === "fulfilled");
+  if (!successful) {
+    const errors = results
+      .filter(
+        (result: PromiseSettledResult<void>): result is PromiseRejectedResult => result.status === "rejected"
+      )
+      .map((result: PromiseRejectedResult) => String(result.reason))
+      .join("; ");
+    throw new Error(`Telegram API error for all chats: ${errors}`);
   }
 }

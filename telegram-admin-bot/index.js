@@ -19,13 +19,27 @@ const { promisify } = require("util");
 const execAsync = promisify(exec);
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+const parseChatIds = (raw) =>
+  String(raw || "")
+    .split(/[,\s;]+/)
+    .map((id) => id.trim())
+    .filter(Boolean)
+    .filter((id, index, arr) => arr.indexOf(id) === index);
+
+const ADMIN_CHAT_IDS = parseChatIds(
+  process.env.TELEGRAM_ADMIN_CHAT_IDS ||
+    process.env.TELEGRAM_ADMIN_CHAT_ID ||
+    process.env.TELEGRAM_CHAT_IDS ||
+    process.env.TELEGRAM_CHAT_ID
+);
 const APP_DIR = process.env.APP_DIR || "/var/www/ValikLanding";
 const PM2_APP_NAME = process.env.PM2_APP_NAME || "all";
 const BUILD_SCRIPT = process.env.BUILD_SCRIPT || "build";
 
-if (!BOT_TOKEN || !ADMIN_CHAT_ID) {
-  console.error("Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env.local (корень проекта) или в telegram-admin-bot/.env");
+if (!BOT_TOKEN || ADMIN_CHAT_IDS.length === 0) {
+  console.error(
+    "Set TELEGRAM_BOT_TOKEN and TELEGRAM_ADMIN_CHAT_IDS (или TELEGRAM_CHAT_IDS) in .env.local (корень проекта) или в telegram-admin-bot/.env"
+  );
   process.exit(1);
 }
 
@@ -37,8 +51,7 @@ const bot = new TelegramBot(BOT_TOKEN, {
 
 function isAdmin(chatId) {
   const id = String(chatId);
-  const allowed = String(ADMIN_CHAT_ID).trim();
-  return id === allowed;
+  return ADMIN_CHAT_IDS.includes(id);
 }
 
 function escapeMarkdown(text) {
@@ -259,4 +272,4 @@ bot.on("polling_error", (err) => {
   console.error("Polling error:", err.message);
 });
 
-console.log("Telegram Admin Bot started. Admin chat ID:", ADMIN_CHAT_ID);
+console.log("Telegram Admin Bot started. Admin chat IDs:", ADMIN_CHAT_IDS.join(", "));

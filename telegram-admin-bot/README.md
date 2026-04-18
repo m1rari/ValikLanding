@@ -12,7 +12,7 @@
 | Обновить приложение | `git fetch`, `git pull`, `npm run build`, `pm2 restart` |
 | Перезапуск сервера | подтверждение → `sudo reboot` |
 
-Доступ только у чата с **TELEGRAM_ADMIN_CHAT_ID**.
+Доступ только у чатов из **TELEGRAM_ADMIN_CHAT_IDS** (или `TELEGRAM_ADMIN_CHAT_ID` для совместимости).
 
 ## Установка на сервере (Ubuntu)
 
@@ -41,7 +41,7 @@ npm install
 
 ```
 
-Если в корне проекта уже есть **.env.local** с `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`, их **дублировать не нужно** — бот читает этот файл автоматически.
+Если в корне проекта уже есть **.env.local** с `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_IDS` и `TELEGRAM_ADMIN_CHAT_IDS`, их **дублировать не нужно** — бот читает этот файл автоматически.
 
 Создайте **.env** в папке `telegram-admin-bot/` только если нужно задать переменные бота (иначе возьмутся значения по умолчанию):
 
@@ -52,7 +52,7 @@ PM2_APP_NAME=ValikLanding
 BUILD_SCRIPT=build
 ```
 
-- **TELEGRAM_BOT_TOKEN** и **TELEGRAM_CHAT_ID** — берутся из `../.env.local` (тот же файл, что и для сайта).
+- **TELEGRAM_BOT_TOKEN**, **TELEGRAM_CHAT_IDS**, **TELEGRAM_ADMIN_CHAT_IDS** — берутся из `../.env.local` (тот же файл, что и для сайта).
 - **APP_DIR** — по умолчанию `/var/www/ValikLanding`.
 - **PM2_APP_NAME** — по умолчанию `all`; укажите имя приложения из `pm2 list` (например `ValikLanding`).
 - **BUILD_SCRIPT** — по умолчанию `build`; при необходимости можно задать `build:dev`.
@@ -86,8 +86,8 @@ root ALL=(ALL) NOPASSWD: /sbin/reboot
 
 ## Безопасность
 
-- Никому не передавайте **TELEGRAM_BOT_TOKEN** и **TELEGRAM_ADMIN_CHAT_ID**.
-- Управление возможно только из чата с указанным `TELEGRAM_ADMIN_CHAT_ID`; остальные запросы игнорируются.
+- Никому не передавайте **TELEGRAM_BOT_TOKEN** и список админ-чатов.
+- Управление возможно только из чатов, указанных в `TELEGRAM_ADMIN_CHAT_IDS`; остальные запросы игнорируются.
 - Рекомендуется сменить пароль от сервера, если он где-то передавался в открытом виде.
 
 ## Обновление бота после изменений в коде

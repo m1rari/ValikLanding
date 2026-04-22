@@ -333,12 +333,24 @@ npm run start      # запуск собранного сайта
 # Полный URL сайта (без слеша в конце). ОБЯЗАТЕЛЬНО после получения домена!
 NEXT_PUBLIC_SITE_URL=https://ваш-домен.by
 
+# Пароль для /admin (управление ENV и SEO)
+ADMIN_PANEL_PASSWORD=your-strong-password
+
 # Код верификации Google Search Console (шаг 3 инструкции ниже)
 NEXT_PUBLIC_GOOGLE_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # Код верификации Яндекс.Вебмастер (шаг 4 инструкции ниже)
 NEXT_PUBLIC_YANDEX_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# (Опционально) интеграция SEO-аналитики из Search Console
+GSC_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
+GSC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GSC_SITE_URL=https://ваш-домен.by
 ```
+
+После запуска откройте `https://ваш-домен.by/admin`:
+- вкладка `ENV` — Telegram/PM2 переменные;
+- вкладка `SEO` — мета-теги, canonical, keywords, индексация, health-check и статус SEO аналитики.
 
 ---
 

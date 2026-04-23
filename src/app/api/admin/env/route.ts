@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       telegramBotToken: string;
       telegramChatIds: string[];
       telegramAdminChatIds: string[];
+      googleSheetPricesUrl: string;
       appDir: string;
       pm2AppName: string;
       buildScript: string;
@@ -43,6 +44,7 @@ export async function POST(req: NextRequest) {
       telegramBotToken: body.telegramBotToken || "",
       telegramChatIds: Array.isArray(body.telegramChatIds) ? body.telegramChatIds : [],
       telegramAdminChatIds: Array.isArray(body.telegramAdminChatIds) ? body.telegramAdminChatIds : [],
+      googleSheetPricesUrl: body.googleSheetPricesUrl || "",
       appDir: body.appDir || "/var/www/ValikLanding",
       pm2AppName: body.pm2AppName || "all",
       buildScript: body.buildScript || "build",

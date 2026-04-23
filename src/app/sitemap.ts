@@ -5,6 +5,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://electro-pinsk.by";
   const seo = await readSeoSettings();
   const canonicalUrl = new URL(seo.canonicalPath, siteUrl).toString();
+  const pricesUrl = new URL("/prices", siteUrl).toString();
 
   return [
     {
@@ -12,6 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
+    },
+    {
+      url: pricesUrl,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
   ];
 }

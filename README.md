@@ -342,6 +342,9 @@ NEXT_PUBLIC_GOOGLE_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 # Код верификации Яндекс.Вебмастер (шаг 4 инструкции ниже)
 NEXT_PUBLIC_YANDEX_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+# Публичный CSV Google Sheets для страницы /prices
+GOOGLE_SHEET_PRICES_URL=https://docs.google.com/spreadsheets/d/e/.../pub?output=csv
+
 # (Опционально) интеграция SEO-аналитики из Search Console
 GSC_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
 GSC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -349,8 +352,13 @@ GSC_SITE_URL=https://ваш-домен.by
 ```
 
 После запуска откройте `https://ваш-домен.by/admin`:
-- вкладка `ENV` — Telegram/PM2 переменные;
+- вкладка `ENV` — Telegram/PM2 переменные + `GOOGLE_SHEET_PRICES_URL`;
 - вкладка `SEO` — мета-теги, canonical, keywords, индексация, health-check и статус SEO аналитики.
+
+Формат CSV для `/prices`:
+`category,service,unit,price,note,updatedAt`
+
+Если Google Sheets превращает цену в дату (в CSV это выглядит как `46xxx`), парсер на сайте автоматически восстанавливает значение цены.
 
 ---
 

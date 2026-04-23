@@ -10,16 +10,24 @@
 
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ThemeToggle";
 
+type NavLink = {
+  label: string;
+  href: string;
+  type: "section" | "page";
+};
+
 const navLinks = [
-  { label: "Услуги",         href: "#services"  },
-  { label: "Форматы работы", href: "#formats"   },
-  { label: "Примеры работ",  href: "#works"     },
-  { label: "Этапы",          href: "#timeline"  },
-  { label: "Контакты",       href: "#contacts"  },
-];
+  { label: "Услуги", href: "#services", type: "section" },
+  { label: "Форматы работы", href: "#formats", type: "section" },
+  { label: "Примеры работ", href: "#works", type: "section" },
+  { label: "Цены", href: "/prices", type: "page" },
+  { label: "Этапы", href: "#timeline", type: "section" },
+  { label: "Контакты", href: "#contacts", type: "section" },
+] satisfies NavLink[];
 
 export default function Header() {
   const [hidden, setHidden]   = useState(false);
@@ -34,7 +42,7 @@ export default function Header() {
     setScrolled(latest > 20);
   });
 
-  const handleNavClick = (href: string) => {
+  const handleSectionClick = (href: string) => {
     setMenuOpen(false);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -55,13 +63,9 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
 
           {/* ---- Логотип ---- */}
-          <a
-            href="#"
+          <Link
+            href="/"
             className="flex items-center gap-2 group"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
           >
             <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
               <svg className="w-5 h-5 text-onPrimary" viewBox="0 0 24 24" fill="currentColor">
@@ -71,18 +75,28 @@ export default function Header() {
             <span className="font-bold text-lg tracking-tight">
               Электро<span className="text-primary">Мастер</span>
             </span>
-          </a>
+          </Link>
 
           {/* ---- Навигация (десктоп) ---- */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => handleNavClick(link.href)}
-                className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200"
-              >
-                {link.label}
-              </button>
+              link.type === "section" ? (
+                <button
+                  key={link.href}
+                  onClick={() => handleSectionClick(link.href)}
+                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200"
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200"
+                >
+                  {link.label}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -123,7 +137,7 @@ export default function Header() {
             {/* Переключатель темы */}
             <ThemeToggle />
 
-            <Button variant="primary" size="sm" onClick={() => handleNavClick("#contacts")}>
+            <Button variant="primary" size="sm" onClick={() => handleSectionClick("#contacts")}>
               Вызвать мастера
             </Button>
           </div>
@@ -171,13 +185,24 @@ export default function Header() {
       >
         <div className="container-custom py-4 flex flex-col gap-3">
           {navLinks.map((link) => (
-            <button
-              key={link.href}
-              onClick={() => handleNavClick(link.href)}
-              className="text-left py-2 text-foreground/70 hover:text-primary font-medium transition-colors"
-            >
-              {link.label}
-            </button>
+            link.type === "section" ? (
+              <button
+                key={link.href}
+                onClick={() => handleSectionClick(link.href)}
+                className="text-left py-2 text-foreground/70 hover:text-primary font-medium transition-colors"
+              >
+                {link.label}
+              </button>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-left py-2 text-foreground/70 hover:text-primary font-medium transition-colors"
+              >
+                {link.label}
+              </Link>
+            )
           ))}
           <hr className="border-foreground/10" />
           <a
@@ -197,7 +222,7 @@ export default function Header() {
               Telegram
             </a>
           </div>
-          <Button variant="primary" size="md" className="mt-2" onClick={() => handleNavClick("#contacts")}>
+          <Button variant="primary" size="md" className="mt-2" onClick={() => handleSectionClick("#contacts")}>
             Вызвать мастера
           </Button>
         </div>

@@ -1,11 +1,20 @@
 "use client";
 
+import Link from "next/link";
+
+type NavLink = {
+  href: string;
+  label: string;
+  type: "section" | "page";
+};
+
 const navLinks = [
-  { href: "#services", label: "Услуги"         },
-  { href: "#formats",  label: "Форматы работы" },
-  { href: "#works",    label: "Примеры работ"  },
-  { href: "#contacts", label: "Контакты"       },
-];
+  { href: "#services", label: "Услуги", type: "section" },
+  { href: "#formats", label: "Форматы работы", type: "section" },
+  { href: "#works", label: "Примеры работ", type: "section" },
+  { href: "/prices", label: "Цены", type: "page" },
+  { href: "#contacts", label: "Контакты", type: "section" },
+] satisfies NavLink[];
 
 export default function Footer() {
   const handleScrollTo = (href: string) => {
@@ -35,13 +44,23 @@ export default function Footer() {
 
             <nav className="space-y-2">
               {navLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => handleScrollTo(link.href)}
-                  className="block text-muted hover:text-primary transition-colors text-sm"
-                >
-                  {link.label}
-                </button>
+                link.type === "section" ? (
+                  <button
+                    key={link.href}
+                    onClick={() => handleScrollTo(link.href)}
+                    className="block text-muted hover:text-primary transition-colors text-sm"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block text-muted hover:text-primary transition-colors text-sm"
+                  >
+                    {link.label}
+                  </Link>
+                )
               ))}
             </nav>
           </div>

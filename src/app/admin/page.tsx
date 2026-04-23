@@ -6,6 +6,7 @@ interface AdminEnvConfig {
   telegramBotToken: string;
   telegramChatIds: string[];
   telegramAdminChatIds: string[];
+  googleSheetPricesUrl: string;
   appDir: string;
   pm2AppName: string;
   buildScript: string;
@@ -50,6 +51,7 @@ const EMPTY_CONFIG: AdminEnvConfig = {
   telegramBotToken: "",
   telegramChatIds: [],
   telegramAdminChatIds: [],
+  googleSheetPricesUrl: "",
   appDir: "/var/www/ValikLanding",
   pm2AppName: "all",
   buildScript: "build",
@@ -196,6 +198,7 @@ export default function AdminEnvPage() {
         telegramBotToken: config.telegramBotToken.trim(),
         telegramChatIds: textareaToList(chatIdsText),
         telegramAdminChatIds: textareaToList(adminChatIdsText),
+        googleSheetPricesUrl: config.googleSheetPricesUrl.trim(),
         appDir: config.appDir.trim(),
         pm2AppName: config.pm2AppName.trim(),
         buildScript: config.buildScript.trim(),
@@ -367,6 +370,22 @@ export default function AdminEnvPage() {
                   value={config.appDir}
                   onChange={(event) => setConfig((prev) => ({ ...prev, appDir: event.target.value }))}
                   className="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-sky-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-300" htmlFor="google-sheet-prices-url">
+                  GOOGLE_SHEET_PRICES_URL
+                </label>
+                <input
+                  id="google-sheet-prices-url"
+                  type="text"
+                  value={config.googleSheetPricesUrl}
+                  onChange={(event) =>
+                    setConfig((prev) => ({ ...prev, googleSheetPricesUrl: event.target.value }))
+                  }
+                  className="mt-1 w-full rounded-md border border-slate-600 bg-slate-900 px-3 py-2 text-slate-100 outline-none focus:border-sky-400"
+                  placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"
                 />
               </div>
 

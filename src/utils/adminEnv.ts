@@ -7,6 +7,7 @@ export interface AdminEnvConfig {
   telegramBotToken: string;
   telegramChatIds: string[];
   telegramAdminChatIds: string[];
+  googleSheetPricesUrl: string;
   appDir: string;
   pm2AppName: string;
   buildScript: string;
@@ -69,6 +70,7 @@ function normalizeConfig(input: AdminEnvConfig): AdminEnvConfig {
     telegramBotToken: input.telegramBotToken.trim(),
     telegramChatIds: parseChatIds(input.telegramChatIds.join(",")),
     telegramAdminChatIds: parseChatIds(input.telegramAdminChatIds.join(",")),
+    googleSheetPricesUrl: input.googleSheetPricesUrl.trim(),
     appDir: input.appDir.trim(),
     pm2AppName: input.pm2AppName.trim(),
     buildScript: input.buildScript.trim(),
@@ -80,6 +82,7 @@ function buildConfigFromMap(map: EnvMap): AdminEnvConfig {
     telegramBotToken: map.TELEGRAM_BOT_TOKEN || "",
     telegramChatIds: getIdsFromMap(map, "TELEGRAM_CHAT_IDS", "TELEGRAM_CHAT_ID"),
     telegramAdminChatIds: getIdsFromMap(map, "TELEGRAM_ADMIN_CHAT_IDS", "TELEGRAM_ADMIN_CHAT_ID"),
+    googleSheetPricesUrl: map.GOOGLE_SHEET_PRICES_URL || "",
     appDir: map.APP_DIR || "/var/www/ValikLanding",
     pm2AppName: map.PM2_APP_NAME || "all",
     buildScript: map.BUILD_SCRIPT || "build",
@@ -121,6 +124,7 @@ export async function writeAdminEnvConfig(input: AdminEnvConfig): Promise<AdminE
   nextMap.TELEGRAM_CHAT_ID = normalized.telegramChatIds[0] || "";
   nextMap.TELEGRAM_ADMIN_CHAT_IDS = normalized.telegramAdminChatIds.join(",");
   nextMap.TELEGRAM_ADMIN_CHAT_ID = normalized.telegramAdminChatIds[0] || "";
+  nextMap.GOOGLE_SHEET_PRICES_URL = normalized.googleSheetPricesUrl;
   nextMap.APP_DIR = normalized.appDir;
   nextMap.PM2_APP_NAME = normalized.pm2AppName;
   nextMap.BUILD_SCRIPT = normalized.buildScript;
@@ -136,6 +140,7 @@ export async function writeAdminEnvConfig(input: AdminEnvConfig): Promise<AdminE
   process.env.TELEGRAM_CHAT_ID = nextMap.TELEGRAM_CHAT_ID;
   process.env.TELEGRAM_ADMIN_CHAT_IDS = nextMap.TELEGRAM_ADMIN_CHAT_IDS;
   process.env.TELEGRAM_ADMIN_CHAT_ID = nextMap.TELEGRAM_ADMIN_CHAT_ID;
+  process.env.GOOGLE_SHEET_PRICES_URL = nextMap.GOOGLE_SHEET_PRICES_URL;
   process.env.APP_DIR = nextMap.APP_DIR;
   process.env.PM2_APP_NAME = nextMap.PM2_APP_NAME;
   process.env.BUILD_SCRIPT = nextMap.BUILD_SCRIPT;

@@ -52,7 +52,7 @@ const EMPTY_CONFIG: AdminEnvConfig = {
   telegramChatIds: [],
   telegramAdminChatIds: [],
   googleSheetPricesUrl: "",
-  appDir: "/var/www/ValikLanding",
+  appDir: "/var/www/electromaster",
   pm2AppName: "all",
   buildScript: "build",
 };

@@ -23,18 +23,18 @@
 Из папки проекта на ПК (где уже есть `telegram-admin-bot/`):
 
 ```bash
-# Вариант А: репозиторий уже клонирован на сервере в /var/www/ValikLanding
+# Вариант А: репозиторий уже клонирован на сервере в /var/www/electromaster
 # Тогда папка telegram-admin-bot уже есть внутри проекта.
 
 # Вариант Б: скопировать только папку бота на сервер
-scp -r telegram-admin-bot root@185.40.4.165:/var/www/ValikLanding/
+scp -r telegram-admin-bot root@185.40.4.165:/var/www/electromaster/
 ```
 
 ### 2. На сервере: установка и настройка
 
 ```bash
 ssh root@185.40.4.165
-cd /var/www/ValikLanding/telegram-admin-bot
+cd /var/www/electromaster/telegram-admin-bot
 
 # Зависимости
 npm install
@@ -47,20 +47,20 @@ npm install
 
 ```env
 # Опционально: путь к проекту и имя в PM2 (если не заданы — см. значения по умолчанию ниже)
-APP_DIR=/var/www/ValikLanding
+APP_DIR=/var/www/electromaster
 PM2_APP_NAME=ValikLanding
 BUILD_SCRIPT=build
 ```
 
 - **TELEGRAM_BOT_TOKEN**, **TELEGRAM_CHAT_IDS**, **TELEGRAM_ADMIN_CHAT_IDS** — берутся из `../.env.local` (тот же файл, что и для сайта).
-- **APP_DIR** — по умолчанию `/var/www/ValikLanding`.
+- **APP_DIR** — по умолчанию `/var/www/electromaster`.
 - **PM2_APP_NAME** — по умолчанию `all`; укажите имя приложения из `pm2 list` (например `ValikLanding`).
 - **BUILD_SCRIPT** — по умолчанию `build`; при необходимости можно задать `build:dev`.
 
 ### 3. Запуск через PM2
 
 ```bash
-cd /var/www/ValikLanding/telegram-admin-bot
+cd /var/www/electromaster/telegram-admin-bot
 pm2 start index.js --name telegram-admin-bot
 pm2 save
 pm2 startup
@@ -95,7 +95,7 @@ root ALL=(ALL) NOPASSWD: /sbin/reboot
 На сервере:
 
 ```bash
-cd /var/www/ValikLanding
+cd /var/www/electromaster
 git pull
 cd telegram-admin-bot
 npm install

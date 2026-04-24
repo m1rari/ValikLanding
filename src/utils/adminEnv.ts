@@ -83,7 +83,7 @@ function buildConfigFromMap(map: EnvMap): AdminEnvConfig {
     telegramChatIds: getIdsFromMap(map, "TELEGRAM_CHAT_IDS", "TELEGRAM_CHAT_ID"),
     telegramAdminChatIds: getIdsFromMap(map, "TELEGRAM_ADMIN_CHAT_IDS", "TELEGRAM_ADMIN_CHAT_ID"),
     googleSheetPricesUrl: map.GOOGLE_SHEET_PRICES_URL || "",
-    appDir: map.APP_DIR || "/var/www/ValikLanding",
+    appDir: map.APP_DIR || "/var/www/electromaster",
     pm2AppName: map.PM2_APP_NAME || "all",
     buildScript: map.BUILD_SCRIPT || "build",
   };

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       telegramChatIds: Array.isArray(body.telegramChatIds) ? body.telegramChatIds : [],
       telegramAdminChatIds: Array.isArray(body.telegramAdminChatIds) ? body.telegramAdminChatIds : [],
       googleSheetPricesUrl: body.googleSheetPricesUrl || "",
-      appDir: body.appDir || "/var/www/ValikLanding",
+      appDir: body.appDir || "/var/www/electromaster",
       pm2AppName: body.pm2AppName || "all",
       buildScript: body.buildScript || "build",
     });

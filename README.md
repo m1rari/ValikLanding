@@ -270,7 +270,7 @@ sudo certbot --nginx -d ваш-домен.by -d www.ваш-домен.by
 
 ```bash
 # На VPS — стянуть изменения и пересобрать
-cd /var/www/ValikLanding
+cd /var/www/electromaster
 git pull
 npm run build
 pm2 restart ValikLanding

@@ -32,7 +32,7 @@ const ADMIN_CHAT_IDS = parseChatIds(
     process.env.TELEGRAM_CHAT_IDS ||
     process.env.TELEGRAM_CHAT_ID
 );
-const APP_DIR = process.env.APP_DIR || "/var/www/ValikLanding";
+const APP_DIR = process.env.APP_DIR || "/var/www/electromaster";
 const PM2_APP_NAME = process.env.PM2_APP_NAME || "all";
 const BUILD_SCRIPT = process.env.BUILD_SCRIPT || "build";
 

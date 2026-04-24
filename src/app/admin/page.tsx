@@ -80,6 +80,14 @@ function textareaToList(value: string): string[] {
     .filter((id, index, arr) => arr.indexOf(id) === index);
 }
 
+function textareaToKeywordList(value: string): string[] {
+  return value
+    .split(/[\n,;]+/)
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+    .filter((keyword, index, arr) => arr.indexOf(keyword) === index);
+}
+
 export default function AdminEnvPage() {
   const [tab, setTab] = useState<"env" | "seo">("env");
   const [password, setPassword] = useState("");
@@ -239,7 +247,7 @@ export default function AdminEnvPage() {
         ogTitle: seo.ogTitle.trim(),
         ogDescription: seo.ogDescription.trim(),
         canonicalPath: seo.canonicalPath.trim(),
-        keywords: textareaToList(seoKeywordsText),
+        keywords: textareaToKeywordList(seoKeywordsText),
         indexingEnabled: seo.indexingEnabled,
         siteName: seo.siteName.trim(),
       };

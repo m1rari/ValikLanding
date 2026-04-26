@@ -42,6 +42,13 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "ИП Шугайло Валентин Георгиевич" }],
     creator: "ИП Шугайло Валентин Георгиевич",
     publisher: "ИП Шугайло Валентин Георгиевич",
+    icons: {
+      icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/logo.svg", type: "image/svg+xml" },
+      ],
+      shortcut: "/favicon.ico",
+    },
     robots: {
       index: seo.indexingEnabled,
       follow: seo.indexingEnabled,

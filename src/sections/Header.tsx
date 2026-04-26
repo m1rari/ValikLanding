@@ -11,6 +11,7 @@
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -64,20 +65,23 @@ export default function Header() {
           {/* ---- Логотип ---- */}
           <Link
             href="/"
-            className="flex items-center gap-2 group"
+            className="flex shrink-0 items-center gap-2 group"
           >
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-              <svg className="w-5 h-5 text-onPrimary" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </div>
+            <Image
+              src="/logo.svg"
+              alt=""
+              width={108}
+              height={108}
+              priority
+              className="h-[108px] w-[108px]"
+            />
             <span className="font-bold text-lg tracking-tight">
               Электро<span className="text-primary">Мастер</span>
             </span>
           </Link>
 
           {/* ---- Навигация (десктоп) ---- */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="mx-6 hidden flex-1 items-center justify-center gap-4 xl:gap-8 lg:flex">
             {navLinks.map((link) => (
               link.type === "section" ? (
                 <button
@@ -100,7 +104,7 @@ export default function Header() {
           </nav>
 
           {/* ---- Правый блок: телефон + мессенджеры + тема + кнопка ---- */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="ml-4 hidden shrink-0 items-center gap-3 lg:flex xl:ml-6">
             <a
               href="tel:+375291645388"
               className="text-sm font-semibold text-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1"

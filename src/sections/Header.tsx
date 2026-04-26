@@ -115,10 +115,12 @@ export default function Header() {
               href="viber://chat?number=%2B375291645388"
               className="p-2 rounded-lg bg-purple-700/20 hover:bg-purple-700/40 text-purple-500 hover:text-purple-400 transition-all duration-200"
               title="Viber"
+              aria-label="Написать в Viber"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M11.4 1.1C7.2 1.4 3.8 4.4 3 8.5c-.4 2-.3 3.9.4 5.7L3 17.4c-.1.5.1 1 .6 1.2.2.1.4.1.6.1l3.3-.4c1.6.8 3.3 1.2 5.1 1.1 5.2-.2 9.3-4.5 9.2-9.7-.1-5-4.3-8.9-10.4-8.6zm4.8 12.8c-.3.5-.8 1-1.3 1.1-.4.1-.8.1-1.2-.1-.8-.3-1.6-.7-2.3-1.2-1.5-1-2.7-2.3-3.5-3.9-.4-.8-.7-1.6-.7-2.5 0-.5.2-1 .5-1.4.3-.4.7-.7 1.1-.8.5-.1 1 .2 1.2.6l.9 1.9c.2.4.1.8-.2 1.1l-.4.4c-.1.1-.1.3 0 .5.4.8 1 1.5 1.7 2.1.5.4 1 .7 1.6.9.2.1.4 0 .5-.1l.4-.4c.3-.3.7-.4 1.1-.2l1.8 1c.5.3.7.9.4 1.4l-.6.6z"/>
               </svg>
+              <span className="sr-only">Написать в Viber</span>
             </a>
 
             <a
@@ -127,10 +129,12 @@ export default function Header() {
               rel="noopener noreferrer"
               className="p-2 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 text-sky-500 hover:text-sky-400 transition-all duration-200"
               title="Telegram"
+              aria-label="Написать в Telegram"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.69 7.96c-.12.56-.46.69-.93.43l-2.57-1.89-1.24 1.19c-.14.14-.25.25-.52.25l.18-2.62 4.74-4.28c.21-.18-.04-.28-.31-.1L7.4 14.27 4.87 13.5c-.55-.17-.56-.55.11-.82l10.03-3.87c.46-.17.86.11.63.99z"/>
               </svg>
+              <span className="sr-only">Написать в Telegram</span>
             </a>
 
             {/* Переключатель темы */}

@@ -4,6 +4,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by"
 const BUSINESS_ID = `${SITE_URL}/#business`;
 const PERSON_ID = `${SITE_URL}/#person`;
 const SERVICE_ID = `${SITE_URL}/#service`;
+const BREADCRUMB_ID = `${SITE_URL}/#breadcrumbs`;
 
 const schema = {
   "@context": "https://schema.org",
@@ -20,13 +21,32 @@ const schema = {
       "@type": "WebPage",
       "@id": `${SITE_URL}/#webpage`,
       url: SITE_URL,
-      name: "Электромонтажные работы в Пинске | Электрик ИП Шугайло",
+      name: "Электрик в Пинске - установка и ремонт электропроводки",
       description:
-        "Электромонтажные работы в Пинске и Пинском районе: замена проводки, монтаж щитов, розеток и освещения. Консультация в день обращения, договор и гарантия.",
+        "Электрик в Пинске и Пинском районе: установка и ремонт электропроводки, щитов, розеток и освещения. Договор, акт, выезд мастера.",
       inLanguage: "ru-BY",
       isPartOf: { "@id": `${SITE_URL}/#website` },
       about: { "@id": SERVICE_ID },
       mainEntity: { "@id": SERVICE_ID },
+      breadcrumb: { "@id": BREADCRUMB_ID },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": BREADCRUMB_ID,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Главная",
+          item: SITE_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Электрик в Пинске",
+          item: SITE_URL,
+        },
+      ],
     },
     {
       "@type": "Person",

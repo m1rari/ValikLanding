@@ -171,11 +171,28 @@ export default function Footer() {
                 Зарегистрирован в Торговом реестре Республики Беларусь.
               </p>
               <p className="mt-2">
-                Работаем по договору, с актом приёма-передачи и гарантией на выполненные работы.
+                Работаем по договору, с актом приёма-передачи и согласованием условий до начала работ.
               </p>
               <p className="mt-2">
                 Оплата: наличный и безналичный расчёт в белорусских рублях.
               </p>
+              <div className="mt-4 flex flex-wrap gap-x-3 gap-y-2">
+                <Link href="/offer#requisites" className="hover:text-primary transition-colors">
+                  Реквизиты
+                </Link>
+                <Link href="/offer#payment" className="hover:text-primary transition-colors">
+                  Оплата
+                </Link>
+                <Link href="/offer#acceptance" className="hover:text-primary transition-colors">
+                  Договор и акт
+                </Link>
+                <Link href="/offer#service-area" className="hover:text-primary transition-colors">
+                  Выезд и условия
+                </Link>
+                <Link href="/privacy#cookies" className="hover:text-primary transition-colors">
+                  Cookies
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -191,6 +208,15 @@ export default function Footer() {
             </Link>
             <Link href="/offer" className="hover:text-primary transition-colors">
               Условия оказания услуг
+            </Link>
+            <Link href="/offer#payment" className="hover:text-primary transition-colors">
+              Оплата
+            </Link>
+            <Link href="/offer#requisites" className="hover:text-primary transition-colors">
+              Реквизиты
+            </Link>
+            <Link href="/privacy#cookies" className="hover:text-primary transition-colors">
+              Cookies
             </Link>
           </div>
         </div>

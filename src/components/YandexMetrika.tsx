@@ -9,7 +9,7 @@ export default function YandexMetrika() {
     <>
       <Script
         id="yandex-metrika"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             (function(m,e,t,r,i,k,a){
@@ -21,9 +21,7 @@ export default function YandexMetrika() {
 
             ym(${YM_ID},'init',{
               ssr: true,
-              webvisor: true,
               clickmap: true,
-              ecommerce: "dataLayer",
               referrer: document.referrer,
               url: location.href,
               accurateTrackBounce: true,

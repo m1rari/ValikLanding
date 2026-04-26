@@ -37,6 +37,18 @@ export default function PrivacyPage() {
             </p>
           </section>
 
+          <section id="cookies">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Cookies и аналитика
+            </h2>
+            <p>
+              Сайт может использовать cookies, данные браузера и обезличенную
+              статистику посещений для корректной работы форм, аналитики и
+              улучшения качества страницы. Эти данные не используются для продажи
+              персональной информации третьим лицам.
+            </p>
+          </section>
+
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-2">
               Для чего используются данные?

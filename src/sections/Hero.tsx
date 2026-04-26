@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Button from "@/components/ui/Button";
 
 function fadeInUp(delay = 0) {
@@ -12,8 +12,92 @@ function fadeInUp(delay = 0) {
   };
 }
 
+function LineIcon({
+  name,
+  className = "w-5 h-5",
+}: {
+  name: "phone" | "clipboard" | "bolt" | "pin" | "close" | "shield" | "check" | "tool" | "message";
+  className?: string;
+}) {
+  const common = {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  switch (name) {
+    case "phone":
+      return (
+        <svg {...common}>
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.78.66 2.62a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.46-1.23a2 2 0 0 1 2.11-.45c.84.32 1.72.54 2.62.66A2 2 0 0 1 22 16.92z" />
+        </svg>
+      );
+    case "clipboard":
+      return (
+        <svg {...common}>
+          <path d="M9 4h6" />
+          <path d="M9 2h6v4H9z" />
+          <path d="M6 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1" />
+          <path d="M8 13h8" />
+          <path d="M8 17h5" />
+        </svg>
+      );
+    case "bolt":
+      return (
+        <svg {...common} fill="currentColor" stroke="none">
+          <path d="M13 2 3 14h8l-1 8 11-13h-8l1-7Z" />
+        </svg>
+      );
+    case "pin":
+      return (
+        <svg {...common}>
+          <path d="M12 21s7-5.1 7-12a7 7 0 1 0-14 0c0 6.9 7 12 7 12Z" />
+          <circle cx="12" cy="9" r="2.5" />
+        </svg>
+      );
+    case "close":
+      return (
+        <svg {...common}>
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      );
+    case "shield":
+      return (
+        <svg {...common}>
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+          <path d="m9 12 2 2 4-5" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...common}>
+          <path d="m5 12 4 4L19 6" />
+        </svg>
+      );
+    case "tool":
+      return (
+        <svg {...common}>
+          <path d="M14.7 6.3a4 4 0 0 0 4.97 4.97L11 19.93a2.5 2.5 0 0 1-3.54-3.54l8.66-8.66a4 4 0 0 0-1.42-1.43Z" />
+          <path d="m7 17 1 1" />
+        </svg>
+      );
+    case "message":
+      return (
+        <svg {...common}>
+          <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+        </svg>
+      );
+  }
+}
+
 export default function Hero() {
   const [showContact, setShowContact] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleScrollTo = (href: string) => {
     const el = document.querySelector(href);
@@ -21,57 +105,40 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-
-      {/* ================================================================
-          ФОН СЕКЦИИ — адаптируется к теме через dark: классы
-          ================================================================ */}
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-dark">
       <div className="absolute inset-0 z-0">
-        {/* Основной градиент фона */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-white to-blue-50/60 dark:from-[#0a0d14] dark:via-[#0F1117] dark:to-[#111827]" />
-
-        {/* Паттерн электросхемы */}
-        <div
-          className="absolute inset-0 opacity-[0.04] dark:opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23F5A623' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
+        <motion.div
+          className="absolute inset-0 bg-[linear-gradient(rgba(31,28,25,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(31,28,25,0.035)_1px,transparent_1px)] bg-[size:36px_36px] dark:bg-[linear-gradient(rgba(255,250,240,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,250,240,0.045)_1px,transparent_1px)]"
+          animate={shouldReduceMotion ? undefined : { backgroundPosition: ["0px 0px", "36px 36px"] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
         />
-
-        {/* Радиальное жёлтое свечение */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_60%,rgba(245,166,35,0.06),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_60%,rgba(245,166,35,0.08),transparent)]" />
-
-        {/* Затемнение/осветление снизу — плавный переход */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-dark to-transparent" />
+        <motion.div
+          className="absolute left-0 top-0 h-full w-2 bg-primary shadow-[0_0_28px_rgba(245,158,11,0.45)]"
+          animate={shouldReduceMotion ? undefined : { opacity: [0.75, 1, 0.75] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+          animate={shouldReduceMotion ? undefined : { scale: [1, 1.12, 1], x: [0, 18, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-foreground/10" />
       </div>
 
-      {/* Анимированные частицы */}
-      {[...Array(6)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1 h-1 rounded-full bg-primary/40 dark:bg-primary/60"
-          style={{
-            left: `${15 + i * 15}%`,
-            top: `${20 + (i % 3) * 25}%`,
-          }}
-          animate={{ y: [0, -20, 0], opacity: [0.3, 0.8, 0.3] }}
-          transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.4 }}
-        />
-      ))}
-
-      {/* ================================================================
-          ОСНОВНОЙ КОНТЕНТ
-          ================================================================ */}
-      <div className="container-custom relative z-10 pt-20 pb-28 sm:pt-24 sm:pb-20">
-        <div className="max-w-3xl">
+      <div className="container-custom relative z-10 pt-24 pb-16 sm:pt-28 lg:pt-32">
+        <div className="max-w-4xl">
 
           {/* Бадж */}
           <motion.div
             {...fadeInUp(0)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs sm:text-sm font-medium mb-5 sm:mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 rounded-full bg-surface border border-foreground/10 text-foreground text-xs sm:text-sm font-semibold mb-5 sm:mb-6 shadow-sm"
           >
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse flex-shrink-0" />
-            Консультация мастера в день обращения
+            <motion.span
+              className="w-2 h-2 rounded-full bg-primary flex-shrink-0"
+              animate={shouldReduceMotion ? undefined : { scale: [1, 1.45, 1], opacity: [1, 0.65, 1] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            Консультация в день обращения
           </motion.div>
 
           {/* H1 */}
@@ -79,19 +146,19 @@ export default function Hero() {
             {...fadeInUp(0.15)}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 sm:mb-6"
           >
-            Комплекс{" "}
-            <span className="text-gradient">электромонтажных</span>{" "}
-            работ в частном доме, квартире или офисе
+            Электромонтаж без сюрпризов:{" "}
+            <span className="text-primary">смета, договор и гарантия</span>
           </motion.h1>
 
           {/* Подзаголовок */}
           <motion.p
             {...fadeInUp(0.3)}
-            className="text-base sm:text-lg md:text-xl text-foreground/60 mb-8 sm:mb-10 max-w-2xl leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-muted mb-8 sm:mb-10 max-w-2xl leading-relaxed"
           >
-            Надёжно, по стандартам.{" "}
-            <span className="text-foreground font-medium">Выезд мастера в день обращения.</span>{" "}
-            Работаем в Пинске и Пинском районе.
+            Электрик в Пинске и Пинском районе для квартир, домов, офисов и
+            коммерческих помещений. Заменим проводку, соберём щит, подключим
+            розетки, освещение и мощные потребители. Работаем аккуратно,
+            объясняем решения простым языком и фиксируем условия до старта.
           </motion.p>
 
           {/* CTA-кнопки */}
@@ -106,9 +173,7 @@ export default function Hero() {
               className="w-full sm:w-auto justify-center"
               onClick={() => setShowContact(true)}
             >
-              <svg className="w-5 h-5 mr-2 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-              </svg>
+              <LineIcon name="phone" className="w-5 h-5 mr-2 flex-shrink-0" />
               Вызвать мастера
             </Button>
             <Button
@@ -124,17 +189,24 @@ export default function Hero() {
           {/* Метки доверия */}
           <motion.div
             {...fadeInUp(0.6)}
-            className="flex flex-wrap gap-4 sm:gap-6 mt-8 sm:mt-12"
+            className="grid gap-3 sm:grid-cols-3 sm:gap-4 mt-8 sm:mt-12"
           >
             {[
-              { icon: "📋", text: "Официальный договор"   },
-              { icon: "⚡", text: "Работаем с 2015 года"  },
-              { icon: "📍", text: "Пинск и Пинский район" },
-            ].map((item) => (
-              <div key={item.text} className="flex items-center gap-2 text-xs sm:text-sm text-foreground/60">
-                <span>{item.icon}</span>
+              { icon: "clipboard" as const, text: "Официальный договор" },
+              { icon: "bolt" as const, text: "Опыт с 2015 года" },
+              { icon: "pin" as const, text: "Пинск и район" },
+            ].map((item, index) => (
+              <motion.div
+                key={item.text}
+                className="flex items-center gap-2 rounded-xl border border-foreground/10 bg-surface px-3 py-2 text-xs sm:text-sm text-muted shadow-sm will-change-transform"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.75 + index * 0.1, ease: "easeOut" }}
+                whileHover={shouldReduceMotion ? undefined : { y: -3, borderColor: "rgba(245,158,11,0.35)" }}
+              >
+                <LineIcon name={item.icon} className="w-4 h-4 text-primary flex-shrink-0" />
                 <span>{item.text}</span>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
@@ -157,7 +229,7 @@ export default function Hero() {
             />
 
             <motion.div
-              className="relative bg-dark border border-primary/30 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl"
+              className="relative bg-dark border border-foreground/10 rounded-2xl p-8 w-full max-w-sm text-center shadow-2xl"
               initial={{ opacity: 0, scale: 0.85, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.85, y: 20 }}
@@ -165,15 +237,15 @@ export default function Hero() {
             >
               <button
                 onClick={() => setShowContact(false)}
-                className="absolute top-4 right-4 text-muted hover:text-foreground transition-colors"
+                className="absolute top-4 right-4 text-muted hover:text-foreground transition-colors cursor-pointer"
                 aria-label="Закрыть"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
+                <LineIcon name="close" className="w-5 h-5" />
               </button>
 
-              <div className="text-4xl mb-3">📞</div>
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                <LineIcon name="phone" className="w-6 h-6" />
+              </div>
               <h3 className="text-xl font-bold mb-1">Позвоните нам</h3>
               <p className="text-muted text-sm mb-6">Работаем в Пинске и Пинском районе</p>
 
@@ -182,9 +254,7 @@ export default function Hero() {
                   href="tel:+375291645388"
                   className="flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-primary text-onPrimary font-semibold hover:bg-primary/90 transition-colors"
                 >
-                  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-                  </svg>
+                  <LineIcon name="phone" className="w-5 h-5 flex-shrink-0" />
                   +375 (29) 164-53-88
                 </a>
 
@@ -222,7 +292,7 @@ export default function Hero() {
       >
         <span>Прокрутите вниз</span>
         <motion.div
-          className="w-0.5 h-8 bg-gradient-to-b from-muted to-transparent"
+          className="w-0.5 h-8 bg-muted/40"
           animate={{ scaleY: [0, 1, 0], originY: 0 }}
           transition={{ duration: 1.5, repeat: Infinity }}
         />

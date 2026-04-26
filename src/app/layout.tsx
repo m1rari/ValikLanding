@@ -14,7 +14,7 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://electro-pinsk.by";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by";
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION?.trim();
 const yandexVerification = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION?.trim();

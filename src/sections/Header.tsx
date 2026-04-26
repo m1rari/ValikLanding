@@ -25,7 +25,6 @@ const navLinks = [
   { label: "Форматы работы", href: "#formats", type: "section" },
   { label: "Примеры работ", href: "#works", type: "section" },
   { label: "Цены", href: "/prices", type: "page" },
-  { label: "Этапы", href: "#timeline", type: "section" },
   { label: "Контакты", href: "#contacts", type: "section" },
 ] satisfies NavLink[];
 
@@ -50,24 +49,24 @@ export default function Header() {
 
   return (
     <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed left-3 right-3 top-3 z-50 transition-all duration-300 lg:left-6 lg:right-6 ${
         scrolled
-          ? "bg-dark/90 backdrop-blur-md border-b border-foreground/10 shadow-lg shadow-black/10"
-          : "bg-transparent"
+          ? "rounded-2xl bg-dark/92 backdrop-blur-md border border-foreground/10 shadow-lg shadow-black/10"
+          : "rounded-2xl bg-dark/75 backdrop-blur-sm border border-foreground/10"
       }`}
       variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
     >
       <div className="container-custom">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16 lg:h-[72px]">
 
           {/* ---- Логотип ---- */}
           <Link
             href="/"
             className="flex items-center gap-2 group"
           >
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">
               <svg className="w-5 h-5 text-onPrimary" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
@@ -84,7 +83,7 @@ export default function Header() {
                 <button
                   key={link.href}
                   onClick={() => handleSectionClick(link.href)}
-                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200"
+                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors duration-200 cursor-pointer"
                 >
                   {link.label}
                 </button>
@@ -147,7 +146,7 @@ export default function Header() {
             <ThemeToggle />
 
             <button
-              className="p-2 text-foreground hover:text-primary transition-colors"
+              className="p-2 text-foreground hover:text-primary transition-colors cursor-pointer"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label="Меню"
             >

@@ -37,6 +37,8 @@ export default function YandexMetrika() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={`https://mc.yandex.ru/watch/${YM_ID}`}
+            width={1}
+            height={1}
             style={{ position: "absolute", left: -9999 }}
             alt=""
           />

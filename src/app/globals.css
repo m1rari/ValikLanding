@@ -11,17 +11,17 @@
    .dark  = ТЁМНАЯ тема (класс вешается на <html>)
    ============================================================ */
 :root {
-  --bg-base:     244 245 252;   /* slate-50   #F8FAFC  — основной фон              */
-  --bg-surface:  241 245 249;   /* slate-100  #F1F5F9  — фон карточек              */
-  --color-muted: 100 116 139;   /* slate-500  #64748B  — вспомогательный текст     */
-  --color-fg:    15 23 42;      /* slate-900  #0F172A  — основной текст            */
+  --bg-base:     250 247 239;   /* #FAF7EF — тёплый основной фон                   */
+  --bg-surface:  255 252 246;   /* #FFFCF6 — карточки и панели                     */
+  --color-muted: 97 89 79;      /* #61594F — вспомогательный текст                 */
+  --color-fg:    31 28 25;      /* #1F1C19 — основной текст                        */
 }
 
 .dark {
-  --bg-base:     15 17 23;      /* #0F1117 — основной фон                          */
-  --bg-surface:  26 31 46;      /* #1A1F2E — фон карточек                          */
-  --color-muted: 107 114 128;   /* #6B7280 — вспомогательный текст                 */
-  --color-fg:    255 255 255;   /* #FFFFFF — основной текст                        */
+  --bg-base:     18 17 15;      /* #12110F — тёплый тёмный фон                     */
+  --bg-surface:  29 27 24;      /* #1D1B18 — карточки и панели                     */
+  --color-muted: 170 158 139;   /* #AA9E8B — вспомогательный текст                 */
+  --color-fg:    255 250 240;   /* #FFFAF0 — основной текст                        */
 }
 
 @layer base {
@@ -40,7 +40,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-yellow-300 bg-clip-text text-transparent;
+    @apply text-primary;
   }
 
   .container-custom {

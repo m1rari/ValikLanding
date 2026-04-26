@@ -31,13 +31,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const base =
-      "inline-flex items-center justify-center font-semibold rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer";
 
     const variants = {
       // text-onPrimary — всегда тёмный (#0F1117), не зависит от темы
-      primary: "bg-primary text-onPrimary hover:bg-yellow-400 active:scale-95",
-      outline: "border-2 border-primary text-primary hover:bg-primary hover:text-onPrimary active:scale-95",
-      ghost:   "text-foreground hover:text-primary active:scale-95",
+      primary: "bg-primary text-onPrimary shadow-[0_10px_24px_rgba(245,166,35,0.22)] hover:bg-yellow-400 hover:shadow-[0_12px_28px_rgba(245,166,35,0.28)] active:translate-y-px",
+      outline: "border border-foreground/20 bg-surface text-foreground hover:border-primary/60 hover:text-primary active:translate-y-px",
+      ghost:   "text-foreground hover:text-primary active:translate-y-px",
     };
 
     const sizes = {

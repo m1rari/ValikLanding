@@ -29,11 +29,11 @@ export default function Services() {
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">
             Что мы делаем
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold mt-3">
-            Наши услуги
+          <h2 className="text-3xl sm:text-4xl font-bold mt-3 text-foreground">
+            Услуги электрика для дома и бизнеса
           </h2>
-          <p className="text-muted mt-4 max-w-xl mx-auto">
-            Полный комплекс электромонтажных работ — от замены проводки до монтажа системы умного дома
+          <p className="text-muted mt-4 max-w-2xl mx-auto">
+            Показываем не абстрактный список, а реальные задачи, с которыми чаще всего обращаются: от щитка и кабеля до освещения и отопления.
           </p>
         </motion.div>
 

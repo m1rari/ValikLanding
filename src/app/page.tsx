@@ -4,6 +4,7 @@ import WorkFormats from "@/sections/WorkFormats";
 import Services    from "@/sections/Services";
 import Works       from "@/sections/Works";
 import Timeline    from "@/sections/Timeline";
+import Faq         from "@/sections/Faq";
 import LeadForm    from "@/sections/LeadForm";
 import { readSeoSettings } from "@/utils/seoSettings";
 
@@ -24,6 +25,7 @@ export default function Home() {
       <Services />
       <Works />
       <Timeline />
+      <Faq />
       <LeadForm />
     </main>
   );

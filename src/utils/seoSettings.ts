@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const SEO_SETTINGS_PATH = path.join(process.cwd(), ".seo-settings.json");
-const DEFAULT_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://electro-pinsk.by";
+const DEFAULT_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by";
 
 export interface SeoSettings {
   title: string;
@@ -16,11 +16,12 @@ export interface SeoSettings {
 }
 
 const DEFAULT_SETTINGS: SeoSettings = {
-  title: "Электромонтажные работы в Пинске | ИП Шугайло",
+  title: "Электромонтажные работы в Пинске | Электрик ИП Шугайло",
   description:
-    "Комплекс электромонтажных работ в частном доме, квартире или офисе. Замена проводки, монтаж щитов, установка розеток и освещения. Выезд мастера в день обращения. Пинск и Пинский район.",
-  ogTitle: "Электромонтажные работы в Пинске | ИП Шугайло",
-  ogDescription: "Надёжно, по стандартам. Выезд мастера в день обращения. Пинск и Пинский район.",
+    "Электромонтажные работы в Пинске и Пинском районе: замена проводки, монтаж щитов, розеток и освещения. Консультация в день обращения, договор и гарантия.",
+  ogTitle: "Электромонтажные работы в Пинске | Электрик ИП Шугайло",
+  ogDescription:
+    "Электрик в Пинске и Пинском районе: монтаж, ремонт электрики, щиты, розетки и освещение. Консультация в день обращения, договор и гарантия.",
   canonicalPath: "/",
   keywords: [
     "электромонтаж Пинск",

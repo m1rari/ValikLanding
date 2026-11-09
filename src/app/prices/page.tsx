@@ -1,12 +1,32 @@
 import type { Metadata } from "next";
 import { getPricesFromSheet } from "@/utils/getPricesFromSheet";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by";
+
+const PAGE_TITLE = "Цены на услуги электрика в Пинске — прайс в BYN";
+const PAGE_DESCRIPTION =
+  "Прайс на электромонтажные работы в Пинске: штробление, прокладка кабеля, сборка щитов, установка розеток и светильников. Цены в BYN, выезд на замер бесплатно.";
+
 export const metadata: Metadata = {
-  title: "Цены",
-  description: "Актуальные цены на электромонтажные работы ИП Шугайло в Пинске и Пинском районе.",
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
   alternates: {
     canonical: "/prices",
   },
+  openGraph: {
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    url: "/prices",
+  },
+};
+
+const breadcrumbsSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Электрик в Пинске", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Цены", item: `${SITE_URL}/prices` },
+  ],
 };
 
 function formatPrice(price: number | null): string {
@@ -30,9 +50,17 @@ export default async function PricesPage() {
 
   return (
     <main className="pt-28 pb-16 md:pt-36 md:pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <section className="container-custom">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">Прайс на электромонтажные работы</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">Цены на электромонтажные работы в Пинске</h1>
+          <p className="text-muted max-w-2xl">
+            Стоимость указана за единицу работы. Итоговую смету мастер составит после бесплатного
+            выезда на замер — по договору, без скрытых доплат.
+          </p>
         </div>
 
         {warnings.length > 0 ? (
@@ -80,6 +108,27 @@ export default async function PricesPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-10 rounded-2xl border border-primary/30 bg-primary/10 p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold mb-1">Нужен точный расчёт?</h2>
+            <p className="text-muted">Позвоните или напишите — подскажем стоимость под ваш объект.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <a
+              href="tel:+375291645388"
+              className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-primary text-onPrimary font-semibold hover:bg-primary/90 transition-colors"
+            >
+              +375 (29) 164-53-88
+            </a>
+            <a
+              href="/#contacts"
+              className="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-primary/40 text-foreground font-semibold hover:bg-primary/10 transition-colors"
+            >
+              Оставить заявку
+            </a>
+          </div>
+        </div>
       </section>
     </main>
   );

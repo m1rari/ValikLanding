@@ -4,7 +4,6 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by"
 const BUSINESS_ID = `${SITE_URL}/#business`;
 const PERSON_ID = `${SITE_URL}/#person`;
 const SERVICE_ID = `${SITE_URL}/#service`;
-const BREADCRUMB_ID = `${SITE_URL}/#breadcrumbs`;
 
 const schema = {
   "@context": "https://schema.org",
@@ -21,32 +20,13 @@ const schema = {
       "@type": "WebPage",
       "@id": `${SITE_URL}/#webpage`,
       url: SITE_URL,
-      name: "Электрик в Пинске - установка и ремонт электропроводки",
+      name: "Электрик в Пинске — вызов на дом, замена проводки, щиты",
       description:
         "Электрик в Пинске и Пинском районе: установка и ремонт электропроводки, щитов, розеток и освещения. Договор, акт, выезд мастера.",
       inLanguage: "ru-BY",
       isPartOf: { "@id": `${SITE_URL}/#website` },
       about: { "@id": SERVICE_ID },
       mainEntity: { "@id": SERVICE_ID },
-      breadcrumb: { "@id": BREADCRUMB_ID },
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": BREADCRUMB_ID,
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Главная",
-          item: SITE_URL,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Электрик в Пинске",
-          item: SITE_URL,
-        },
-      ],
     },
     {
       "@type": "Person",
@@ -64,14 +44,15 @@ const schema = {
       ],
     },
     {
-      "@type": "LocalBusiness",
+      "@type": "Electrician",
       "@id": BUSINESS_ID,
       name: "ИП Шугайло — Электромонтажные работы",
       description:
         "Электромонтажные работы в частном доме, квартире, офисе и коммерческом помещении. Замена проводки, монтаж щитов, установка розеток и освещения. Пинск и Пинский район.",
       url: SITE_URL,
       telephone: "+375291645388",
-      image: `${SITE_URL}/opengraph-image.png`,
+      image: [`${SITE_URL}/opengraph-image`, `${SITE_URL}/works/1_v2.jpg`],
+      logo: `${SITE_URL}/logo.svg`,
       founder: { "@id": PERSON_ID },
       priceRange: "$$",
       currenciesAccepted: "BYN",

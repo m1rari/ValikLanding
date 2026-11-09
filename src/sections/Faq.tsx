@@ -1,7 +1,7 @@
                                                                                                                                                                                                                                                                                                                                                                                     "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { faqItems } from "@/data/faq";
 
 export default function Faq() {
@@ -68,24 +68,22 @@ export default function Faq() {
                   </button>
                 </h3>
 
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      id={answerId}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{
-                        duration: shouldReduceMotion ? 0 : 0.28,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <p className="px-6 pb-6 text-muted leading-relaxed">
-                        {item.answer}
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Ответ всегда в DOM (виден поисковикам), скрывается только визуально */}
+                <motion.div
+                  id={answerId}
+                  className="overflow-hidden"
+                  initial={false}
+                  animate={isOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+                  transition={{
+                    duration: shouldReduceMotion ? 0 : 0.28,
+                    ease: "easeInOut",
+                  }}
+                  aria-hidden={!isOpen}
+                >
+                  <p className="px-6 pb-6 text-muted leading-relaxed">
+                    {item.answer}
+                  </p>
+                </motion.div>
               </motion.article>
             );
           })}

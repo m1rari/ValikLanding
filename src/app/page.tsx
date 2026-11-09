@@ -6,6 +6,7 @@ import Works       from "@/sections/Works";
 import Timeline    from "@/sections/Timeline";
 import Faq         from "@/sections/Faq";
 import LeadForm    from "@/sections/LeadForm";
+import JsonLd      from "@/components/JsonLd";
 import { readSeoSettings } from "@/utils/seoSettings";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Home() {
   return (
     <main>
+      <JsonLd />
       <Hero />
       <WorkFormats />
       <Services />

@@ -5,7 +5,6 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import YandexMetrika from "@/components/YandexMetrika";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import JsonLd from "@/components/JsonLd";
 import { readSeoSettings } from "@/utils/seoSettings";
 
 const montserrat = Montserrat({
@@ -67,20 +66,12 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: seo.siteName,
       locale: "ru_BY",
       type: "website",
-      images: [
-        {
-          url: "/opengraph-image.png",
-          width: 1200,
-          height: 630,
-          alt: "Электромонтажные работы в Пинске — ИП Шугайло",
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
       title: seo.ogTitle,
       description: seo.ogDescription,
-      images: ["/opengraph-image.png"],
+      images: ["/opengraph-image"],
     },
     ...(siteVerification ? { verification: siteVerification } : {}),
   };
@@ -94,7 +85,6 @@ export default function RootLayout({
   return (
     <html lang="ru" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${montserrat.variable} font-sans bg-dark text-foreground antialiased`}>
-        <JsonLd />
         <ThemeProvider>
           <Header />
           {children}

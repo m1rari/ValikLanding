@@ -5,7 +5,7 @@ import Header from "@/sections/Header";
 import Footer from "@/sections/Footer";
 import YandexMetrika from "@/components/YandexMetrika";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import JsonLd from "@/components/JsonLd";
+import { readSeoSettings } from "@/utils/seoSettings";
 
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
@@ -13,76 +13,69 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://electro-pinsk.by";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://pinsk-elektrik.by";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: "Электромонтажные работы в Пинске | ИП Шугайло",
-    template: "%s | ИП Шугайло — Электрик в Пинске",
-  },
-  description:
-    "Комплекс электромонтажных работ в частном доме, квартире или офисе. Замена проводки, монтаж щитов, установка розеток и освещения. Выезд мастера в день обращения. Пинск и Пинский район.",
-  keywords: [
-    "электромонтаж Пинск",
-    "электрик Пинск",
-    "замена проводки Пинск",
-    "монтаж щита Пинск",
-    "электромонтажные работы Пинский район",
-    "ИП Шугайло",
-    "вызов электрика Пинск",
-    "монтаж освещения Пинск",
-    "установка розеток Пинск",
-    "электрик на дом Пинск",
-    "электромонтаж квартира Пинск",
-    "электромонтаж частный дом Пинск",
-  ],
-  authors: [{ name: "ИП Шугайло Валентин Георгиевич" }],
-  creator: "ИП Шугайло Валентин Георгиевич",
-  publisher: "ИП Шугайло Валентин Георгиевич",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION?.trim();
+const yandexVerification = process.env.NEXT_PUBLIC_YANDEX_VERIFICATION?.trim();
+const siteVerification =
+  googleVerification || yandexVerification
+    ? {
+        ...(googleVerification ? { google: googleVerification } : {}),
+        ...(yandexVerification ? { yandex: yandexVerification } : {}),
+      }
+    : undefined;
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await readSeoSettings();
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: seo.title,
+      template: `%s | ${seo.siteName}`,
     },
-  },
-  openGraph: {
-    title: "Электромонтажные работы в Пинске | ИП Шугайло",
-    description:
-      "Надёжно, по стандартам. Выезд мастера в день обращения. Пинск и Пинский район.",
-    url: "/",
-    siteName: "ИП Шугайло — Электрик в Пинске",
-    locale: "ru_BY",
-    type: "website",
-    images: [
-      {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Электромонтажные работы в Пинске — ИП Шугайло",
+    description: seo.description,
+    keywords: seo.keywords,
+    authors: [{ name: "ИП Шугайло Валентин Георгиевич" }],
+    creator: "ИП Шугайло Валентин Георгиевич",
+    publisher: "ИП Шугайло Валентин Георгиевич",
+    icons: {
+      icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/logo.svg", type: "image/svg+xml" },
+      ],
+      shortcut: "/favicon.ico",
+    },
+    robots: {
+      index: seo.indexingEnabled,
+      follow: seo.indexingEnabled,
+      googleBot: {
+        index: seo.indexingEnabled,
+        follow: seo.indexingEnabled,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Электромонтажные работы в Пинске | ИП Шугайло",
-    description: "Надёжно, по стандартам. Выезд мастера в день обращения.",
-    images: ["/opengraph-image.png"],
-  },
-  alternates: {
-    canonical: "/",
-  },
-  // Коды верификации: заполните после регистрации в Google Search Console и Яндекс.Вебмастер
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION ?? "",
-    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION ?? "",
-  },
-};
+    },
+    openGraph: {
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      url: seo.canonicalPath,
+      siteName: seo.siteName,
+      locale: "ru_BY",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      images: ["/opengraph-image"],
+    },
+    ...(siteVerification ? { verification: siteVerification } : {}),
+  };
+}
 
 export default function RootLayout({
   children,
@@ -92,7 +85,6 @@ export default function RootLayout({
   return (
     <html lang="ru" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${montserrat.variable} font-sans bg-dark text-foreground antialiased`}>
-        <JsonLd />
         <ThemeProvider>
           <Header />
           {children}

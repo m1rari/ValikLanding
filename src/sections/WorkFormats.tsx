@@ -7,7 +7,7 @@ const tabs = [
   {
     id: "with-project",
     label: "С проектом",
-    icon: "📐",
+    icon: "plan",
     title: "Работа по проекту",
     description:
       "Идеальное решение для новостроек и капитального ремонта. Строгое следование инженерным чертежам, спецификациям и нормам ПУЭ.",
@@ -19,28 +19,57 @@ const tabs = [
       "Приёмка и подключение Энергонадзором",
     ],
     badge: "Для новостроек и кап. ремонта",
-    color: "from-electric/20 to-transparent",
-    accent: "text-electric border-electric/30",
+    accent: "text-electric border-electric/30 bg-electric/10",
   },
   {
     id: "without-project",
     label: "Без проекта",
-    icon: "🔧",
+    icon: "tool",
     title: "Работа без проекта",
     description:
       "Подходит для частичной замены проводки, переноса розеток и косметического ремонта. Минимум документов, максимум скорости.",
     features: [
-      "Выезд на замер в день обращения",
+      "Консультация в день обращения",
       "Составление локальной сметы",
       "Быстрое согласование и старт работ",
       "Готовность без бюрократических задержек",
       "Подходит для съёмного жилья и офисов",
     ],
     badge: "Для текущего ремонта",
-    color: "from-primary/20 to-transparent",
-    accent: "text-primary border-primary/30",
+    accent: "text-primary border-primary/30 bg-primary/10",
   },
 ];
+
+function FormatIcon({ name, className = "w-5 h-5" }: { name: string; className?: string }) {
+  const common = {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (name === "plan") {
+    return (
+      <svg {...common}>
+        <path d="M4 4h16v16H4z" />
+        <path d="M8 4v16" />
+        <path d="M4 9h16" />
+        <path d="M12 14h5" />
+        <path d="M12 17h3" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      <path d="M14.7 6.3a4 4 0 0 0 4.97 4.97L11 19.93a2.5 2.5 0 0 1-3.54-3.54l8.66-8.66a4 4 0 0 0-1.42-1.43Z" />
+      <path d="m7 17 1 1" />
+    </svg>
+  );
+}
 
 export default function WorkFormats() {
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -61,7 +90,7 @@ export default function WorkFormats() {
             Как мы работаем
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold mt-3">
-            Форматы работы
+            Подстроимся под ваш объект
           </h2>
           <p className="text-muted mt-4 max-w-xl mx-auto">
             Выберите удобный формат — работаем как по готовому проекту, так и без него
@@ -70,20 +99,20 @@ export default function WorkFormats() {
 
         {/* Переключатель вкладок */}
         <div className="flex justify-center mb-10">
-          <div className="flex gap-1 p-1 bg-surface rounded-xl border border-foreground/5">
+          <div className="flex gap-1 p-1 bg-surface rounded-2xl border border-foreground/10 shadow-sm">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2
+                  px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer
                   ${activeTab === tab.id
                     ? "bg-primary text-onPrimary shadow-lg shadow-primary/20"
                     : "text-muted hover:text-foreground"
                   }
                 `}
               >
-                <span>{tab.icon}</span>
+                <FormatIcon name={tab.icon} className="w-4 h-4" />
                 {tab.label}
               </button>
             ))}
@@ -99,13 +128,12 @@ export default function WorkFormats() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
             className={`
-              max-w-3xl mx-auto p-8 rounded-2xl border
-              bg-gradient-to-br ${activeData.color}
-              border-foreground/5 relative overflow-hidden will-change-transform
+              max-w-4xl mx-auto p-8 rounded-3xl border bg-surface
+              border-foreground/10 relative overflow-hidden shadow-sm will-change-transform
             `}
           >
-            <div className="absolute top-4 right-6 text-5xl opacity-20">
-              {activeData.icon}
+            <div className="absolute right-6 top-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-dark text-primary opacity-80">
+              <FormatIcon name={activeData.icon} className="w-8 h-8" />
             </div>
 
             <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border mb-4 ${activeData.accent}`}>

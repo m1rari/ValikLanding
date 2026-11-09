@@ -113,10 +113,14 @@ interface TelegramPayload {
 }
 
 export async function sendTelegram(data: TelegramPayload): Promise<void> {
-  const token  = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatIds = (process.env.TELEGRAM_CHAT_IDS || process.env.TELEGRAM_CHAT_ID || "")
+    .split(/[,\s;]+/)
+    .map((id: string) => id.trim())
+    .filter(Boolean)
+    .filter((id: string, index: number, arr: string[]) => arr.indexOf(id) === index);
 
-  if (!token || !chatId) {
+  if (!token || chatIds.length === 0) {
     console.warn("Telegram credentials not configured");
     return;
   }
@@ -139,38 +143,53 @@ export async function sendTelegram(data: TelegramPayload): Promise<void> {
   // URL Telegram Bot API для отправки сообщения
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  const body = JSON.stringify({
-    chat_id: chatId,
-    text,
-    parse_mode: "Markdown",
-  });
-
+  // Отправка одному чату — через прокси (TELEGRAM_HTTP_PROXY / Proxifly), если он настроен
   const useProxifly = proxiflyEnabled() && !process.env.TELEGRAM_HTTP_PROXY?.trim();
   const maxAttempts = useProxifly ? 2 : 1;
 
-  let response!: Awaited<ReturnType<typeof undiciFetch>>;
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const proxyUrl = await resolveTelegramOutboundProxyUrl();
-    try {
-      response = await undiciFetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-        ...(proxyUrl ? { dispatcher: new ProxyAgent(proxyUrl) } : {}),
-      });
-      break;
-    } catch (err) {
-      if (useProxifly && attempt < maxAttempts - 1) {
-        proxiflyProxyCache = null;
-        continue;
+  async function sendToChat(chatId: string): Promise<void> {
+    const body = JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: "Markdown", // Включаем Markdown-форматирование
+    });
+
+    let response!: Awaited<ReturnType<typeof undiciFetch>>;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const proxyUrl = await resolveTelegramOutboundProxyUrl();
+      try {
+        response = await undiciFetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+          ...(proxyUrl ? { dispatcher: new ProxyAgent(proxyUrl) } : {}),
+        });
+        break;
+      } catch (err) {
+        if (useProxifly && attempt < maxAttempts - 1) {
+          proxiflyProxyCache = null;
+          continue;
+        }
+        throw err;
       }
-      throw err;
+    }
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`chat_id=${chatId}: ${error}`);
     }
   }
 
-  // Если Telegram API вернул ошибку — бросаем исключение
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Telegram API error: ${error}`);
+  const results = await Promise.allSettled(chatIds.map(sendToChat));
+
+  const successful = results.some((result: PromiseSettledResult<void>) => result.status === "fulfilled");
+  if (!successful) {
+    const errors = results
+      .filter(
+        (result: PromiseSettledResult<void>): result is PromiseRejectedResult => result.status === "rejected"
+      )
+      .map((result: PromiseRejectedResult) => String(result.reason))
+      .join("; ");
+    throw new Error(`Telegram API error for all chats: ${errors}`);
   }
 }

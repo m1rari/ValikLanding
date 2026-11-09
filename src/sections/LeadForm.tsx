@@ -43,17 +43,97 @@ interface FormData {
   consent: boolean;
 }
 
-const WALL_MATERIALS: { value: WallMaterial; label: string; icon: string }[] = [
-  { value: "дерево",   label: "Дерево",   icon: "🪵" },
-  { value: "кирпич",  label: "Кирпич",   icon: "🧱" },
-  { value: "пеноблок", label: "Пеноблок", icon: "⬜" },
-  { value: "бетон",   label: "Бетон",    icon: "🏗️" },
+const WALL_MATERIALS: { value: WallMaterial; label: string; icon: "wood" | "brick" | "block" | "concrete" }[] = [
+  { value: "дерево",   label: "Дерево",   icon: "wood" },
+  { value: "кирпич",  label: "Кирпич",   icon: "brick" },
+  { value: "пеноблок", label: "Пеноблок", icon: "block" },
+  { value: "бетон",   label: "Бетон",    icon: "concrete" },
 ];
 
 const MOUNTING_METHODS: { value: MountingMethod; label: string; desc: string }[] = [
   { value: "открытый", label: "Открытый", desc: "кабель в кабель-канале" },
   { value: "скрытый",  label: "Скрытый",  desc: "кабель в стене" },
 ];
+
+function FormIcon({
+  name,
+  className = "w-5 h-5",
+}: {
+  name: "wood" | "brick" | "block" | "concrete" | "check" | "phone" | "message" | "telegram";
+  className?: string;
+}) {
+  const common = {
+    className,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  switch (name) {
+    case "wood":
+      return (
+        <svg {...common}>
+          <path d="M4 6h16v12H4z" />
+          <path d="M7 9h10" />
+          <path d="M6 14c3-2 6 2 9 0 1-.6 2-.8 3-.5" />
+        </svg>
+      );
+    case "brick":
+      return (
+        <svg {...common}>
+          <path d="M3 7h18v10H3z" />
+          <path d="M3 12h18" />
+          <path d="M8 7v5" />
+          <path d="M16 7v5" />
+          <path d="M12 12v5" />
+        </svg>
+      );
+    case "block":
+      return (
+        <svg {...common}>
+          <rect x="4" y="5" width="16" height="14" rx="2" />
+          <path d="M8 9h8" />
+          <path d="M8 13h8" />
+        </svg>
+      );
+    case "concrete":
+      return (
+        <svg {...common}>
+          <path d="M4 18h16" />
+          <path d="M7 18V8l5-3 5 3v10" />
+          <path d="M10 11h4" />
+          <path d="M10 15h4" />
+        </svg>
+      );
+    case "check":
+      return (
+        <svg {...common}>
+          <path d="m5 12 4 4L19 6" />
+        </svg>
+      );
+    case "phone":
+      return (
+        <svg {...common}>
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.78.66 2.62a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.46-1.23a2 2 0 0 1 2.11-.45c.84.32 1.72.54 2.62.66A2 2 0 0 1 22 16.92z" />
+        </svg>
+      );
+    case "message":
+      return (
+        <svg {...common}>
+          <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+        </svg>
+      );
+    case "telegram":
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2a10 10 0 1 0 .01 0ZM16.7 8.8l-1.69 7.96c-.12.56-.46.69-.93.43l-2.57-1.89-1.24 1.19c-.14.14-.25.25-.52.25l.18-2.62 4.74-4.28c.21-.18-.04-.28-.31-.1l-6.9 4.53-2.53-.77c-.55-.17-.56-.55.11-.82l10.03-3.87c.46-.17.86.11.63.99Z" />
+        </svg>
+      );
+  }
+}
 
 export default function LeadForm() {
   const [submitStatus, setSubmitStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -113,7 +193,7 @@ export default function LeadForm() {
           </motion.div>
 
           <motion.div
-            className="bg-dark rounded-2xl p-8 border border-primary/20"
+            className="bg-dark rounded-3xl p-6 sm:p-8 border border-foreground/10 shadow-xl shadow-black/5"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -126,7 +206,9 @@ export default function LeadForm() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-8"
               >
-                <div className="text-5xl mb-4">✅</div>
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+                  <FormIcon name="check" className="w-8 h-8" />
+                </div>
                 <h3 className="text-xl font-bold mb-2">Заявка отправлена!</h3>
                 <p className="text-muted mb-6">Перезвоним в течение 15 минут</p>
                 <Button variant="outline" onClick={() => setSubmitStatus("idle")}>
@@ -148,13 +230,13 @@ export default function LeadForm() {
                         key={value}
                         type="button"
                         onClick={() => setValue("wallMaterial", value, { shouldValidate: true })}
-                        className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border text-sm font-medium transition-all ${
+                        className={`flex flex-col items-center gap-2 py-3 px-2 rounded-2xl border text-sm font-medium transition-all cursor-pointer ${
                           selectedMaterial === value
                             ? "border-primary bg-primary/10 text-primary"
                             : "border-foreground/10 bg-surface text-muted hover:border-foreground/30 hover:text-foreground"
                         }`}
                       >
-                        <span className="text-xl">{icon}</span>
+                        <FormIcon name={icon} className="w-5 h-5" />
                         {label}
                       </button>
                     ))}
@@ -180,7 +262,7 @@ export default function LeadForm() {
                         key={value}
                         type="button"
                         onClick={() => setValue("mountingMethod", value, { shouldValidate: true })}
-                        className={`flex flex-col items-start gap-0.5 py-3 px-4 rounded-xl border text-sm transition-all ${
+                        className={`flex flex-col items-start gap-0.5 py-3 px-4 rounded-2xl border text-sm transition-all cursor-pointer ${
                           selectedMethod === value
                             ? "border-primary bg-primary/10 text-primary"
                             : "border-foreground/10 bg-surface text-muted hover:border-foreground/30 hover:text-foreground"
@@ -215,7 +297,7 @@ export default function LeadForm() {
                         const v = Number(watch("connectionPoints")) || 1;
                         if (v > 1) setValue("connectionPoints", v - 1);
                       }}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors cursor-pointer"
                     >
                       −
                     </button>
@@ -237,7 +319,7 @@ export default function LeadForm() {
                         const v = Number(watch("connectionPoints")) || 0;
                         if (v < 999) setValue("connectionPoints", v + 1);
                       }}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors"
+                      className="w-10 h-10 flex items-center justify-center rounded-xl border border-foreground/10 bg-surface text-foreground text-xl hover:border-primary/50 hover:text-primary transition-colors cursor-pointer"
                     >
                       +
                     </button>
@@ -306,7 +388,7 @@ export default function LeadForm() {
                     <span className="text-sm text-muted">
                       Я согласен(на) на обработку персональных данных в соответствии
                       с{" "}
-                      <a href="#" className="text-primary hover:underline">
+                      <a href="/privacy" className="text-primary hover:underline">
                         политикой конфиденциальности
                       </a>
                     </span>
@@ -359,15 +441,15 @@ export default function LeadForm() {
             transition={{ delay: 0.3 }}
           >
             <a href="tel:+375291645388" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <span>📞</span>
+              <FormIcon name="phone" className="w-4 h-4" />
               +375 (29) 164-53-88
             </a>
             <a href="viber://chat?number=%2B375291645388" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <span>💬</span>
+              <FormIcon name="message" className="w-4 h-4" />
               Viber
             </a>
             <a href="https://t.me/+375291645388" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <span>✈️</span>
+              <FormIcon name="telegram" className="w-4 h-4" />
               Telegram
             </a>
           </motion.div>

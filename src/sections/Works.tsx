@@ -86,13 +86,14 @@ function Lightbox({
           <Image
             src={item.src}
             alt={item.title}
-            fill
-            className="object-cover"
+            width={1280}
+            height={960}
+            className="h-full w-full object-cover"
             sizes="(max-width: 1280px) 100vw, 1280px"
             priority
           />
           {/* Подпись */}
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-6 py-4">
+          <div className="absolute bottom-0 inset-x-0 bg-black/75 px-6 py-4 backdrop-blur-sm">
             <p className="text-white font-semibold text-lg">{item.title}</p>
             <p className="text-white/60 text-sm">{item.category}</p>
           </div>
@@ -135,13 +136,14 @@ function WorkCard({
       <Image
         src={item.src}
         alt={item.title}
-        fill
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        width={800}
+        height={600}
+        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         sizes="320px"
       />
 
       {/* Оверлей при наведении */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-black/35 opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
       {/* Иконка лупы */}
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
@@ -288,8 +290,8 @@ export default function Works() {
             </button>
 
             {/* Маски по краям */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface to-transparent z-[5] pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface to-transparent z-[5] pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-0 w-8 bg-surface z-[5] pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-surface z-[5] pointer-events-none" />
 
             {/* Область скролла */}
             <div className="overflow-hidden mx-1 py-2">

@@ -285,6 +285,43 @@ docker compose -f docker/docker-compose.yml --profile admin up -d
 
 ---
 
+## 🛡 Админка `/admin`, прайс и SEO-аналитика
+
+Дополнительные переменные окружения (в `.env` / `.env.local`):
+
+```env
+# Полный URL сайта (без слеша в конце). ОБЯЗАТЕЛЬНО после получения домена!
+NEXT_PUBLIC_SITE_URL=https://ваш-домен.by
+
+# Пароль для /admin (управление ENV и SEO)
+ADMIN_PANEL_PASSWORD=your-strong-password
+
+# Код верификации Google Search Console (шаг 3 инструкции ниже)
+NEXT_PUBLIC_GOOGLE_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Код верификации Яндекс.Вебмастер (шаг 4 инструкции ниже)
+NEXT_PUBLIC_YANDEX_VERIFICATION=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Публичный CSV Google Sheets для страницы /prices
+GOOGLE_SHEET_PRICES_URL=https://docs.google.com/spreadsheets/d/e/.../pub?output=csv
+
+# (Опционально) интеграция SEO-аналитики из Search Console
+GSC_CLIENT_EMAIL=service-account@project.iam.gserviceaccount.com
+GSC_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GSC_SITE_URL=https://ваш-домен.by
+```
+
+После запуска откройте `https://ваш-домен.by/admin`:
+- вкладка `ENV` — Telegram/PM2 переменные + `GOOGLE_SHEET_PRICES_URL`;
+- вкладка `SEO` — мета-теги, canonical, keywords, индексация, health-check и статус SEO аналитики.
+
+Формат CSV для `/prices`:
+`category,service,unit,price,note,updatedAt`
+
+Если Google Sheets превращает цену в дату (в CSV это выглядит как `46xxx`), парсер на сайте автоматически восстанавливает значение цены.
+
+---
+
 ## 📞 Контакты проекта
 
 **ИП Шугайло Валентин Георгиевич**  

@@ -42,7 +42,7 @@ DOCKER_COMPOSE_ARGS=-f docker/docker-compose.yml -f docker/docker-compose.https.
 | Обновить приложение | `git pull`, `docker compose … build web`, `up -d web nginx` |
 | Перезапуск сервера | недоступно (сообщение в чате) |
 
-Доступ только у чата с **TELEGRAM_ADMIN_CHAT_ID**.
+Доступ только у чатов из **TELEGRAM_ADMIN_CHAT_IDS** (или `TELEGRAM_ADMIN_CHAT_ID` для совместимости).
 
 ## Установка на сервере (Ubuntu)
 
@@ -53,44 +53,44 @@ DOCKER_COMPOSE_ARGS=-f docker/docker-compose.yml -f docker/docker-compose.https.
 Из папки проекта на ПК (где уже есть `telegram-admin-bot/`):
 
 ```bash
-# Вариант А: репозиторий уже клонирован на сервере в /var/www/ValikLanding
+# Вариант А: репозиторий уже клонирован на сервере в /var/www/electromaster
 # Тогда папка telegram-admin-bot уже есть внутри проекта.
 
 # Вариант Б: скопировать только папку бота на сервер
-scp -r telegram-admin-bot root@185.40.4.165:/var/www/ValikLanding/
+scp -r telegram-admin-bot root@185.40.4.165:/var/www/electromaster/
 ```
 
 ### 2. На сервере: установка и настройка
 
 ```bash
 ssh root@185.40.4.165
-cd /var/www/ValikLanding/telegram-admin-bot
+cd /var/www/electromaster/telegram-admin-bot
 
 # Зависимости
 npm install
 
 ```
 
-Если в корне проекта уже есть **.env.local** с `TELEGRAM_BOT_TOKEN` и `TELEGRAM_CHAT_ID`, их **дублировать не нужно** — бот читает этот файл автоматически.
+Если в корне проекта уже есть **.env.local** с `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_IDS` и `TELEGRAM_ADMIN_CHAT_IDS`, их **дублировать не нужно** — бот читает этот файл автоматически.
 
 Создайте **.env** в папке `telegram-admin-bot/` только если нужно задать переменные бота (иначе возьмутся значения по умолчанию):
 
 ```env
 # Опционально: путь к проекту и имя в PM2 (если не заданы — см. значения по умолчанию ниже)
-APP_DIR=/var/www/ValikLanding
+APP_DIR=/var/www/electromaster
 PM2_APP_NAME=ValikLanding
 BUILD_SCRIPT=build
 ```
 
-- **TELEGRAM_BOT_TOKEN** и **TELEGRAM_CHAT_ID** — берутся из `../.env.local` (тот же файл, что и для сайта).
-- **APP_DIR** — по умолчанию `/var/www/ValikLanding`.
+- **TELEGRAM_BOT_TOKEN**, **TELEGRAM_CHAT_IDS**, **TELEGRAM_ADMIN_CHAT_IDS** — берутся из `../.env.local` (тот же файл, что и для сайта).
+- **APP_DIR** — по умолчанию `/var/www/electromaster`.
 - **PM2_APP_NAME** — по умолчанию `all`; укажите имя приложения из `pm2 list` (например `ValikLanding`).
 - **BUILD_SCRIPT** — по умолчанию `build`; при необходимости можно задать `build:dev`.
 
 ### 3. Запуск через PM2
 
 ```bash
-cd /var/www/ValikLanding/telegram-admin-bot
+cd /var/www/electromaster/telegram-admin-bot
 pm2 start index.js --name telegram-admin-bot
 pm2 save
 pm2 startup
@@ -116,8 +116,8 @@ root ALL=(ALL) NOPASSWD: /sbin/reboot
 
 ## Безопасность
 
-- Никому не передавайте **TELEGRAM_BOT_TOKEN** и **TELEGRAM_ADMIN_CHAT_ID**.
-- Управление возможно только из чата с указанным `TELEGRAM_ADMIN_CHAT_ID`; остальные запросы игнорируются.
+- Никому не передавайте **TELEGRAM_BOT_TOKEN** и список админ-чатов.
+- Управление возможно только из чатов, указанных в `TELEGRAM_ADMIN_CHAT_IDS`; остальные запросы игнорируются.
 - Рекомендуется сменить пароль от сервера, если он где-то передавался в открытом виде.
 
 ## Обновление бота после изменений в коде
@@ -125,7 +125,7 @@ root ALL=(ALL) NOPASSWD: /sbin/reboot
 На сервере:
 
 ```bash
-cd /var/www/ValikLanding
+cd /var/www/electromaster
 git pull
 cd telegram-admin-bot
 npm install
